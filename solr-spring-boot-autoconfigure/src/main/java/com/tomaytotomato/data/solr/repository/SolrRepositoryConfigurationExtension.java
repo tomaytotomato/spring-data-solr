@@ -39,12 +39,13 @@ public class SolrRepositoryConfigurationExtension extends RepositoryConfiguratio
   @Override
   public void postProcess(BeanDefinitionBuilder builder, RepositoryConfigurationSource source) {
     builder.addPropertyReference("solrTemplate", "solrTemplate");
+    builder.addPropertyReference("mappingContext", "solrMappingContext");
   }
 
   @Override
   public void postProcess(BeanDefinitionBuilder builder, AnnotationRepositoryConfigurationSource config) {
     var attributes = config.getAttributes();
-    builder.addPropertyReference("solrTemplate",
-        attributes.getString("solrTemplateRef"));
+    builder.addPropertyReference("solrTemplate", attributes.getString("solrTemplateRef"));
+    builder.addPropertyReference("mappingContext", "solrMappingContext");
   }
 }
