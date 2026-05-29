@@ -54,7 +54,9 @@ public class SimpleSolrRepository<T, ID> implements SolrRepository<T, ID> {
 
   @Override
   public Iterable<T> findAll() {
-    return solrTemplate.query(collection, new SolrQuery("*:*"), entityClass);
+    var query = new SolrQuery("*:*");
+    query.setRows(Integer.MAX_VALUE);
+    return solrTemplate.query(collection, query, entityClass);
   }
 
   @Override
@@ -114,6 +116,8 @@ public class SimpleSolrRepository<T, ID> implements SolrRepository<T, ID> {
   public Iterable<T> findAll(Sort sort) {
     var query = new SimpleQuery(Criteria.where("*").expression("*"));
     query.setSort(sort);
-    return solrTemplate.query(collection, query.toSolrQuery(), entityClass);
+    var solrQuery = query.toSolrQuery();
+    solrQuery.setRows(Integer.MAX_VALUE);
+    return solrTemplate.query(collection, solrQuery, entityClass);
   }
 }
