@@ -17,6 +17,21 @@ import org.springframework.data.domain.Sort;
 
 public class SimpleSolrRepository<T, ID> implements SolrRepository<T, ID> {
 
+  /**
+   * Default maximum number of documents returned by {@link #findAll()} and {@link #findAll(Sort)}.
+   *
+   * <p>Solr enforces a result-window limit via the {@code maxResultWindow} collection setting
+   * (default 10,000). Requesting {@code Integer.MAX_VALUE} rows against a collection larger than
+   * that limit throws {@code "Result window is too large"}. This constant stays well inside the
+   * default limit while still returning a useful result set for typical development and
+   * small-to-medium collections.
+   *
+   * <p>For collections that may exceed this limit use {@link #findAll(Pageable)} with an explicit
+   * page size, or use cursor-based deep pagination via
+   * {@link com.tomaytotomato.data.solr.SolrOperations#queryWithCursor}.
+   */
+  static final int DEFAULT_MAX_ROWS = 1_000;
+
   private final SolrTemplate solrTemplate;
   private final Class<T> entityClass;
   private final String collection;
@@ -52,10 +67,19 @@ public class SimpleSolrRepository<T, ID> implements SolrRepository<T, ID> {
     return findById(id).isPresent();
   }
 
+  /**
+   * Returns up to {@value #DEFAULT_MAX_ROWS} documents from the collection.
+   *
+   * <p>Solr's {@code maxResultWindow} setting (default 10,000) caps the maximum rows any single
+   * query can request. This method applies a safe default of {@value #DEFAULT_MAX_ROWS} rows.
+   * For complete iteration over large collections use {@link #findAll(Pageable)} with an explicit
+   * page size, or cursor-based pagination via
+   * {@link com.tomaytotomato.data.solr.SolrOperations#queryWithCursor}.
+   */
   @Override
   public Iterable<T> findAll() {
     var query = new SolrQuery("*:*");
-    query.setRows(Integer.MAX_VALUE);
+    query.setRows(DEFAULT_MAX_ROWS);
     return solrTemplate.query(collection, query, entityClass);
   }
 
@@ -112,12 +136,22 @@ public class SimpleSolrRepository<T, ID> implements SolrRepository<T, ID> {
     return solrTemplate.queryForPage(collection, query, entityClass);
   }
 
+  /**
+   * Returns up to {@value #DEFAULT_MAX_ROWS} documents from the collection, ordered by the given
+   * sort specification.
+   *
+   * <p>Solr's {@code maxResultWindow} setting (default 10,000) caps the maximum rows any single
+   * query can request. This method applies a safe default of {@value #DEFAULT_MAX_ROWS} rows.
+   * For complete iteration over large collections use {@link #findAll(Pageable)} with an explicit
+   * page size, or cursor-based pagination via
+   * {@link com.tomaytotomato.data.solr.SolrOperations#queryWithCursor}.
+   */
   @Override
   public Iterable<T> findAll(Sort sort) {
     var query = new SimpleQuery(Criteria.where("*").expression("*"));
     query.setSort(sort);
     var solrQuery = query.toSolrQuery();
-    solrQuery.setRows(Integer.MAX_VALUE);
+    solrQuery.setRows(DEFAULT_MAX_ROWS);
     return solrTemplate.query(collection, solrQuery, entityClass);
   }
 }

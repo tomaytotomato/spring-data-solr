@@ -165,7 +165,7 @@ class SimpleSolrRepositoryTest {
     }
 
     @Test
-    void setsMaxRowsToAvoidSilentTruncation() {
+    void setsDefaultRowCapToStayWithinMaxResultWindow() {
       when(solrTemplate.query(eq("test"), any(SolrQuery.class), eq(TestBook.class)))
           .thenReturn(List.of());
 
@@ -173,11 +173,11 @@ class SimpleSolrRepositoryTest {
 
       var captor = ArgumentCaptor.forClass(SolrQuery.class);
       verify(solrTemplate).query(eq("test"), captor.capture(), eq(TestBook.class));
-      assertThat(captor.getValue().getRows()).isEqualTo(Integer.MAX_VALUE);
+      assertThat(captor.getValue().getRows()).isEqualTo(SimpleSolrRepository.DEFAULT_MAX_ROWS);
     }
 
     @Test
-    void findAllWithSortSetsMaxRowsToAvoidSilentTruncation() {
+    void findAllWithSortSetsDefaultRowCapToStayWithinMaxResultWindow() {
       when(solrTemplate.query(eq("test"), any(SolrQuery.class), eq(TestBook.class)))
           .thenReturn(List.of());
 
@@ -185,7 +185,7 @@ class SimpleSolrRepositoryTest {
 
       var captor = ArgumentCaptor.forClass(SolrQuery.class);
       verify(solrTemplate).query(eq("test"), captor.capture(), eq(TestBook.class));
-      assertThat(captor.getValue().getRows()).isEqualTo(Integer.MAX_VALUE);
+      assertThat(captor.getValue().getRows()).isEqualTo(SimpleSolrRepository.DEFAULT_MAX_ROWS);
     }
 
     @Test
