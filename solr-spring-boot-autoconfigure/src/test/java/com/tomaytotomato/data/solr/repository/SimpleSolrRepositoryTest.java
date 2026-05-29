@@ -16,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -161,6 +162,30 @@ class SimpleSolrRepositoryTest {
       var result = repository.findAll();
 
       assertThat(result).containsExactlyElementsOf(books);
+    }
+
+    @Test
+    void setsDefaultRowCapToStayWithinMaxResultWindow() {
+      when(solrTemplate.query(eq("test"), any(SolrQuery.class), eq(TestBook.class)))
+          .thenReturn(List.of());
+
+      repository.findAll();
+
+      var captor = ArgumentCaptor.forClass(SolrQuery.class);
+      verify(solrTemplate).query(eq("test"), captor.capture(), eq(TestBook.class));
+      assertThat(captor.getValue().getRows()).isEqualTo(SimpleSolrRepository.DEFAULT_MAX_ROWS);
+    }
+
+    @Test
+    void findAllWithSortSetsDefaultRowCapToStayWithinMaxResultWindow() {
+      when(solrTemplate.query(eq("test"), any(SolrQuery.class), eq(TestBook.class)))
+          .thenReturn(List.of());
+
+      repository.findAll(Sort.by("id"));
+
+      var captor = ArgumentCaptor.forClass(SolrQuery.class);
+      verify(solrTemplate).query(eq("test"), captor.capture(), eq(TestBook.class));
+      assertThat(captor.getValue().getRows()).isEqualTo(SimpleSolrRepository.DEFAULT_MAX_ROWS);
     }
 
     @Test
