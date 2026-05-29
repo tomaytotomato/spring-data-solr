@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -34,6 +35,8 @@ public class SolrTemplate implements SolrOperations {
   private final SolrClient solrClient;
   private final CommitMode commitMode;
   private final Environment environment;
+  private final Map<Class<?>, SolrDocumentReader<?>> readerCache = new ConcurrentHashMap<>();
+  private final SolrDocumentWriter<?> sharedWriter = new SolrDocumentWriter<>();
 
   public SolrTemplate(SolrClient solrClient) {
     this(solrClient, CommitMode.NONE, null);
@@ -52,8 +55,7 @@ public class SolrTemplate implements SolrOperations {
   @Override
   public <T> T save(String collection, T entity) {
     try {
-      var writer = new SolrDocumentWriter<T>();
-      solrClient.add(collection, writer.convert(entity));
+      solrClient.add(collection, getWriter().convert(entity));
       commitIfImmediate(collection);
       return entity;
     } catch (IOException | SolrServerException e) {
@@ -70,8 +72,7 @@ public class SolrTemplate implements SolrOperations {
   @Override
   public <T> List<T> saveAll(String collection, Collection<T> entities) {
     try {
-      var writer = new SolrDocumentWriter<T>();
-      var docs = entities.stream().map(writer::convert).toList();
+      var docs = entities.stream().map(e -> getWriter().convert(e)).toList();
       solrClient.add(collection, docs);
       commitIfImmediate(collection);
       return new ArrayList<>(entities);
@@ -350,8 +351,18 @@ public class SolrTemplate implements SolrOperations {
     return solrClient;
   }
 
+  @SuppressWarnings("unchecked")
+  private <T> SolrDocumentReader<T> getReader(Class<T> type) {
+    return (SolrDocumentReader<T>) readerCache.computeIfAbsent(type, SolrDocumentReader::new);
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T> SolrDocumentWriter<T> getWriter() {
+    return (SolrDocumentWriter<T>) sharedWriter;
+  }
+
   private <T> List<T> mapDocuments(SolrDocumentList docs, Class<T> type) {
-    var reader = new SolrDocumentReader<>(type);
+    var reader = getReader(type);
     return docs.stream()
         .map(reader::convert)
         .toList();
