@@ -1,6 +1,7 @@
 package com.tomaytotomato.data.solr.repository;
 
 import com.tomaytotomato.data.solr.SolrTemplate;
+import com.tomaytotomato.data.solr.mapping.SolrMappingContext;
 import java.util.Optional;
 import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.repository.core.RepositoryInformation;
@@ -13,15 +14,19 @@ import org.springframework.data.repository.query.ValueExpressionDelegate;
 public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
   private final SolrTemplate solrTemplate;
+  private final SolrMappingContext mappingContext;
 
-  public SolrRepositoryFactory(SolrTemplate solrTemplate) {
+  public SolrRepositoryFactory(SolrTemplate solrTemplate, SolrMappingContext mappingContext) {
     this.solrTemplate = solrTemplate;
+    this.mappingContext = mappingContext;
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T, ID> EntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
-    return new SolrEntityInformation<>(domainClass, (Class<ID>) String.class);
+    var entity = mappingContext.getRequiredPersistentEntity(domainClass);
+    var idProperty = entity.getRequiredIdProperty();
+    return new SolrEntityInformation<>(domainClass, (Class<ID>) idProperty.getType());
   }
 
   @Override

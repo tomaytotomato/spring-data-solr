@@ -1,6 +1,7 @@
 package com.tomaytotomato.data.solr;
 
 import com.tomaytotomato.data.solr.mapping.SolrCustomConversions;
+import com.tomaytotomato.data.solr.mapping.SolrMappingContext;
 import com.tomaytotomato.data.solr.mapping.SolrMappingConverter;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.List;
@@ -74,6 +75,12 @@ public class SolrAutoConfiguration {
   @ConditionalOnMissingBean
   public SolrTemplate solrTemplate(SolrClient solrClient, SolrProperties properties, Environment environment) {
     return new SolrTemplate(solrClient, properties.getCommitMode(), environment);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public SolrMappingContext solrMappingContext() {
+    return new SolrMappingContext();
   }
 
   @Bean
