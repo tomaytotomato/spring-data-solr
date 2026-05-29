@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public final class BookCurator {
 
-  private static final int TARGET_TOTAL = 250;
+  private static final int TARGET_TOTAL = 1000;
   private static final int MIN_PER_CATEGORY = 8;
   private static final int MIN_DESCRIPTION_LENGTH = 50;
 
