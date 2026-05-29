@@ -14,12 +14,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public final class BookCurator {
 
   private static final int TARGET_TOTAL = 1000;
-  private static final int MIN_PER_CATEGORY = 8;
   private static final int MIN_DESCRIPTION_LENGTH = 50;
 
   private static final Path DEFAULT_INPUT = Path.of(
@@ -27,42 +27,39 @@ public final class BookCurator {
   private static final Path DEFAULT_OUTPUT = Path.of(
       "solr-spring-boot-sample/src/main/resources/curated-books.json");
 
+  private static final Logger log = Logger.getLogger(BookCurator.class.getName());
+
   public static void main(String[] args) throws IOException {
     var inputPath = args.length > 0 ? Path.of(args[0]) : DEFAULT_INPUT;
     var outputPath = args.length > 1 ? Path.of(args[1]) : DEFAULT_OUTPUT;
 
-    System.out.println("=== Solr Book Data Curator ===");
-    System.out.println("Input:  " + inputPath.toAbsolutePath());
-    System.out.println("Output: " + outputPath.toAbsolutePath());
+    log.info("=== Solr Book Data Curator ===");
+    log.info("Input:  " + inputPath.toAbsolutePath());
+    log.info("Output: " + outputPath.toAbsolutePath());
 
     if (!Files.exists(inputPath)) {
-      System.err.println();
-      System.err.println("ERROR: Input CSV not found at " + inputPath.toAbsolutePath());
-      System.err.println();
-      System.err.println("Download the Kaggle 7k Books dataset:");
-      System.err.println("  https://www.kaggle.com/datasets/dylanjcastillo/7k-books-with-metadata");
-      System.err.println();
-      System.err.println("Place the CSV file at:");
-      System.err.println("  " + DEFAULT_INPUT.toAbsolutePath());
+      log.severe("ERROR: Input CSV not found at " + inputPath.toAbsolutePath());
+      log.severe("Download the Kaggle 7k Books dataset:");
+      log.severe("  https://www.kaggle.com/datasets/dylanjcastillo/7k-books-with-metadata");
+      log.severe("Place the CSV file at: " + DEFAULT_INPUT.toAbsolutePath());
       System.exit(1);
     }
 
     var rawRecords = readCsv(inputPath);
-    System.out.println("Read " + rawRecords.size() + " raw records");
+    log.info("Read " + rawRecords.size() + " raw records");
 
     var filtered = filterRichRecords(rawRecords);
-    System.out.println("After quality filter: " + filtered.size() + " records");
+    log.info("After quality filter: " + filtered.size() + " records");
 
     var diversified = diversifyByCategory(filtered);
-    System.out.println("After diversification: " + diversified.size() + " records across "
+    log.info("After diversification: " + diversified.size() + " records across "
         + countCategories(diversified) + " categories");
 
     var curated = enrichAndTransform(diversified);
-    System.out.println("Enriched with prices, geo-locations, and stock status");
+    log.info("Enriched with prices, geo-locations, and stock status");
 
     writeJson(curated, outputPath);
-    System.out.println();
-    System.out.println("Wrote " + curated.size() + " curated books to " + outputPath);
+    log.info("Wrote " + curated.size() + " curated books to " + outputPath);
     printCategorySummary(curated);
   }
 
@@ -229,26 +226,25 @@ public final class BookCurator {
   }
 
   private static void printCategorySummary(List<CuratedBook> books) {
-    System.out.println();
-    System.out.println("Category distribution:");
+    var sb = new StringBuilder("Category distribution:\n");
     books.stream()
         .flatMap(b -> b.categories().stream())
         .collect(Collectors.groupingBy(c -> c, Collectors.counting()))
         .entrySet().stream()
         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-        .forEach(e -> System.out.printf("  %-25s %d%n", e.getKey(), e.getValue()));
+        .forEach(e -> sb.append(String.format("  %-25s %d%n", e.getKey(), e.getValue())));
 
     var locations = books.stream()
         .map(CuratedBook::locationName)
         .distinct()
         .count();
-    System.out.println();
-    System.out.printf("Geo locations: %d unique bookshops/libraries%n", locations);
-    System.out.printf("Price range: %.2f - %.2f%n",
+    sb.append(String.format("Geo locations: %d unique bookshops/libraries%n", locations));
+    sb.append(String.format("Price range: %.2f - %.2f%n",
         books.stream().mapToDouble(CuratedBook::price).min().orElse(0),
-        books.stream().mapToDouble(CuratedBook::price).max().orElse(0));
-    System.out.printf("Year range: %d - %d%n",
+        books.stream().mapToDouble(CuratedBook::price).max().orElse(0)));
+    sb.append(String.format("Year range: %d - %d%n",
         books.stream().mapToInt(CuratedBook::year).min().orElse(0),
-        books.stream().mapToInt(CuratedBook::year).max().orElse(0));
+        books.stream().mapToInt(CuratedBook::year).max().orElse(0)));
+    log.info(sb.toString());
   }
 }
