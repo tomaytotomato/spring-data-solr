@@ -103,31 +103,31 @@ public class Criteria {
 
   /** Inclusive range query: {@code field:[lower TO upper]}. */
   public Criteria between(Object lower, Object upper) {
-    predicates.add(new Predicate("[" + lower + " TO " + upper + "]", false));
+    predicates.add(new Predicate("[" + escape(lower) + " TO " + escape(upper) + "]", false));
     return this;
   }
 
   /** Exclusive upper-bound range: {@code field:[* TO upper)}. */
   public Criteria lessThan(Object upper) {
-    predicates.add(new Predicate("[* TO " + upper + "}", false));
+    predicates.add(new Predicate("[* TO " + escape(upper) + "}", false));
     return this;
   }
 
   /** Inclusive upper-bound range: {@code field:[* TO upper]}. */
   public Criteria lessThanEqual(Object upper) {
-    predicates.add(new Predicate("[* TO " + upper + "]", false));
+    predicates.add(new Predicate("[* TO " + escape(upper) + "]", false));
     return this;
   }
 
   /** Exclusive lower-bound range: {@code field:{lower TO *]}. */
   public Criteria greaterThan(Object lower) {
-    predicates.add(new Predicate("{" + lower + " TO *]", false));
+    predicates.add(new Predicate("{" + escape(lower) + " TO *]", false));
     return this;
   }
 
   /** Inclusive lower-bound range: {@code field:[lower TO *]}. */
   public Criteria greaterThanEqual(Object lower) {
-    predicates.add(new Predicate("[" + lower + " TO *]", false));
+    predicates.add(new Predicate("[" + escape(lower) + " TO *]", false));
     return this;
   }
 

@@ -143,6 +143,24 @@ class CriteriaTest {
       var result = Criteria.where("name").between("a", "z").toQueryString();
       assertThat(result).isEqualTo("name:[a TO z]");
     }
+
+    @Test
+    void escapesSpecialCharactersInLowerBound() {
+      var result = Criteria.where("title").between("foo:bar", "z").toQueryString();
+      assertThat(result).isEqualTo("title:[foo\\:bar TO z]");
+    }
+
+    @Test
+    void escapesSpecialCharactersInUpperBound() {
+      var result = Criteria.where("title").between("a", "test[value").toQueryString();
+      assertThat(result).isEqualTo("title:[a TO test\\[value]");
+    }
+
+    @Test
+    void escapesSpecialCharactersInBothBounds() {
+      var result = Criteria.where("field").between("a+b", "c+d").toQueryString();
+      assertThat(result).isEqualTo("field:[a\\+b TO c\\+d]");
+    }
   }
 
   @Nested
@@ -152,6 +170,18 @@ class CriteriaTest {
     void producesExclusiveUpperBoundRangeQuery() {
       var result = Criteria.where("price").lessThan(100).toQueryString();
       assertThat(result).isEqualTo("price:[* TO 100}");
+    }
+
+    @Test
+    void escapesSpecialCharactersInUpperBound() {
+      var result = Criteria.where("title").lessThan("foo:bar").toQueryString();
+      assertThat(result).isEqualTo("title:[* TO foo\\:bar}");
+    }
+
+    @Test
+    void escapesSquareBracketInUpperBound() {
+      var result = Criteria.where("title").lessThan("test[value").toQueryString();
+      assertThat(result).isEqualTo("title:[* TO test\\[value}");
     }
   }
 
@@ -163,6 +193,18 @@ class CriteriaTest {
       var result = Criteria.where("price").lessThanEqual(100).toQueryString();
       assertThat(result).isEqualTo("price:[* TO 100]");
     }
+
+    @Test
+    void escapesSpecialCharactersInUpperBound() {
+      var result = Criteria.where("title").lessThanEqual("foo:bar").toQueryString();
+      assertThat(result).isEqualTo("title:[* TO foo\\:bar]");
+    }
+
+    @Test
+    void escapesSquareBracketInUpperBound() {
+      var result = Criteria.where("title").lessThanEqual("test[value").toQueryString();
+      assertThat(result).isEqualTo("title:[* TO test\\[value]");
+    }
   }
 
   @Nested
@@ -173,6 +215,18 @@ class CriteriaTest {
       var result = Criteria.where("price").greaterThan(10).toQueryString();
       assertThat(result).isEqualTo("price:{10 TO *]");
     }
+
+    @Test
+    void escapesSpecialCharactersInLowerBound() {
+      var result = Criteria.where("title").greaterThan("foo:bar").toQueryString();
+      assertThat(result).isEqualTo("title:{foo\\:bar TO *]");
+    }
+
+    @Test
+    void escapesSquareBracketInLowerBound() {
+      var result = Criteria.where("title").greaterThan("test[value").toQueryString();
+      assertThat(result).isEqualTo("title:{test\\[value TO *]");
+    }
   }
 
   @Nested
@@ -182,6 +236,18 @@ class CriteriaTest {
     void producesInclusiveLowerBoundRangeQuery() {
       var result = Criteria.where("price").greaterThanEqual(10).toQueryString();
       assertThat(result).isEqualTo("price:[10 TO *]");
+    }
+
+    @Test
+    void escapesSpecialCharactersInLowerBound() {
+      var result = Criteria.where("title").greaterThanEqual("foo:bar").toQueryString();
+      assertThat(result).isEqualTo("title:[foo\\:bar TO *]");
+    }
+
+    @Test
+    void escapesSquareBracketInLowerBound() {
+      var result = Criteria.where("title").greaterThanEqual("test[value").toQueryString();
+      assertThat(result).isEqualTo("title:[test\\[value TO *]");
     }
   }
 
