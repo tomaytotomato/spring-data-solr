@@ -1,8 +1,10 @@
 package com.tomaytotomato.data.solr.health;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
+import org.apache.solr.common.util.NamedList;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +15,8 @@ import org.springframework.boot.health.contributor.Status;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -83,9 +87,27 @@ class SolrHealthIndicatorTest {
   class WithoutCollection {
 
     @Test
-    void reportsUpViaAdminEndpointWhenNoCollectionConfigured() throws Exception {
+    void reportsUpWhenAdminEndpointReturnsValidResponse() throws Exception {
+      var luceneInfo = new NamedList<Object>();
+      luceneInfo.add("solr-spec-version", "10.0.0");
+      var adminResponse = new NamedList<Object>();
+      adminResponse.add("lucene", luceneInfo);
+
+      when(solrClient.request(any(SolrRequest.class), isNull())).thenReturn(adminResponse);
+
       var indicator = new SolrHealthIndicator(solrClient, null);
-      // Without a real Solr server, the admin request will throw — verify DOWN + error
+      var health = indicator.health();
+
+      assertThat(health.getStatus()).isEqualTo(Status.UP);
+      assertThat(health.getDetails()).containsEntry("solr-version", "10.0.0");
+    }
+
+    @Test
+    void reportsDownWhenAdminEndpointThrowsIOException() throws Exception {
+      when(solrClient.request(any(SolrRequest.class), isNull()))
+          .thenThrow(new IOException("connection refused"));
+
+      var indicator = new SolrHealthIndicator(solrClient, null);
       var health = indicator.health();
 
       assertThat(health.getStatus()).isEqualTo(Status.DOWN);
