@@ -3,17 +3,14 @@ package com.tomaytotomato.data.solr.repository;
 import com.tomaytotomato.data.solr.mapping.SolrDocumentResolver;
 import org.springframework.data.repository.core.EntityInformation;
 
-public class SolrEntityInformation<T, ID> implements EntityInformation<T, ID> {
+public class SolrEntityInformation<T> implements EntityInformation<T, String> {
 
   private final Class<T> entityClass;
-  private final Class<ID> idClass;
   private final String collection;
   private final java.lang.reflect.Field idField;
 
-  @SuppressWarnings("unchecked")
-  public SolrEntityInformation(Class<T> entityClass, Class<ID> idClass) {
+  public SolrEntityInformation(Class<T> entityClass) {
     this.entityClass = entityClass;
-    this.idClass = idClass;
     this.collection = SolrDocumentResolver.resolveCollection(entityClass);
     this.idField = resolveIdField(entityClass);
   }
@@ -44,21 +41,20 @@ public class SolrEntityInformation<T, ID> implements EntityInformation<T, ID> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public ID getId(T entity) {
+  public String getId(T entity) {
     if (idField == null) {
       return null;
     }
     try {
-      return (ID) idField.get(entity);
+      return (String) idField.get(entity);
     } catch (IllegalAccessException e) {
       return null;
     }
   }
 
   @Override
-  public Class<ID> getIdType() {
-    return idClass;
+  public Class<String> getIdType() {
+    return String.class;
   }
 
   @Override

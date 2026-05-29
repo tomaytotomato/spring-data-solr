@@ -15,19 +15,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-public class SimpleSolrRepository<T, ID> implements SolrRepository<T, ID> {
+public class SimpleSolrRepository<T> implements SolrRepository<T> {
 
   private final SolrTemplate solrTemplate;
   private final Class<T> entityClass;
   private final String collection;
-  private final SolrEntityInformation<T, ID> entityInformation;
+  private final SolrEntityInformation<T> entityInformation;
 
-  @SuppressWarnings("unchecked")
   public SimpleSolrRepository(SolrTemplate solrTemplate, Class<T> entityClass) {
     this.solrTemplate = solrTemplate;
     this.entityClass = entityClass;
     this.collection = SolrDocumentResolver.resolveCollection(entityClass);
-    this.entityInformation = new SolrEntityInformation<>(entityClass, (Class<ID>) String.class);
+    this.entityInformation = new SolrEntityInformation<>(entityClass);
   }
 
   @Override
@@ -43,12 +42,12 @@ public class SimpleSolrRepository<T, ID> implements SolrRepository<T, ID> {
   }
 
   @Override
-  public Optional<T> findById(ID id) {
-    return solrTemplate.findById(collection, id.toString(), entityClass);
+  public Optional<T> findById(String id) {
+    return solrTemplate.findById(collection, id, entityClass);
   }
 
   @Override
-  public boolean existsById(ID id) {
+  public boolean existsById(String id) {
     return findById(id).isPresent();
   }
 
@@ -58,9 +57,8 @@ public class SimpleSolrRepository<T, ID> implements SolrRepository<T, ID> {
   }
 
   @Override
-  public Iterable<T> findAllById(Iterable<ID> ids) {
+  public Iterable<T> findAllById(Iterable<String> ids) {
     var idList = StreamSupport.stream(ids.spliterator(), false)
-        .map(Object::toString)
         .map(ClientUtils::escapeQueryChars)
         .collect(Collectors.toList());
     if (idList.isEmpty()) {
@@ -76,8 +74,8 @@ public class SimpleSolrRepository<T, ID> implements SolrRepository<T, ID> {
   }
 
   @Override
-  public void deleteById(ID id) {
-    solrTemplate.deleteById(collection, id.toString());
+  public void deleteById(String id) {
+    solrTemplate.deleteById(collection, id);
   }
 
   @Override
@@ -89,7 +87,7 @@ public class SimpleSolrRepository<T, ID> implements SolrRepository<T, ID> {
   }
 
   @Override
-  public void deleteAllById(Iterable<? extends ID> ids) {
+  public void deleteAllById(Iterable<? extends String> ids) {
     ids.forEach(this::deleteById);
   }
 

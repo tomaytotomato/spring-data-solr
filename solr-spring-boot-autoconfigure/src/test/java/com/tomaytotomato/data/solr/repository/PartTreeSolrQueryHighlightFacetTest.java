@@ -40,7 +40,7 @@ class PartTreeSolrQueryHighlightFacetTest {
     String author;
   }
 
-  interface BookRepository extends SolrRepository<Book, String> {
+  interface BookRepository extends SolrRepository<Book> {
 
     @Highlight(fields = "title", prefix = "<mark>", postfix = "</mark>", snippets = 2, fragsize = 150)
     HighlightPage<Book> findByTitleContaining(String term, Pageable pageable);

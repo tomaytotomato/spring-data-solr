@@ -36,7 +36,7 @@ class SolrEntityInformationTest {
 
     @Test
     void extractsIdFromEntityWithFieldNamedId() {
-      var info = new SolrEntityInformation<>(BookWithAnnotatedId.class, String.class);
+      var info = new SolrEntityInformation<>(BookWithAnnotatedId.class);
       var book = new BookWithAnnotatedId();
       book.id = "book-123";
 
@@ -45,7 +45,7 @@ class SolrEntityInformationTest {
 
     @Test
     void extractsIdFromEntityWhereFieldAnnotationValueIsId() {
-      var info = new SolrEntityInformation<>(BookWithRenamedIdField.class, String.class);
+      var info = new SolrEntityInformation<>(BookWithRenamedIdField.class);
       var book = new BookWithRenamedIdField();
       book.bookId = "book-456";
 
@@ -54,7 +54,7 @@ class SolrEntityInformationTest {
 
     @Test
     void returnsNullGracefullyWhenEntityClassHasNoIdField() {
-      var info = new SolrEntityInformation<>(BookWithNoIdField.class, String.class);
+      var info = new SolrEntityInformation<>(BookWithNoIdField.class);
       var book = new BookWithNoIdField();
       book.title = "No Id Here";
 
@@ -63,7 +63,7 @@ class SolrEntityInformationTest {
 
     @Test
     void returnsNullWhenIdFieldValueIsNull() {
-      var info = new SolrEntityInformation<>(BookWithAnnotatedId.class, String.class);
+      var info = new SolrEntityInformation<>(BookWithAnnotatedId.class);
       var book = new BookWithAnnotatedId();
       book.id = null;
 
@@ -76,7 +76,7 @@ class SolrEntityInformationTest {
 
     @Test
     void returnsTrueWhenIdIsNull() {
-      var info = new SolrEntityInformation<>(BookWithAnnotatedId.class, String.class);
+      var info = new SolrEntityInformation<>(BookWithAnnotatedId.class);
       var book = new BookWithAnnotatedId();
       book.id = null;
 
@@ -85,7 +85,7 @@ class SolrEntityInformationTest {
 
     @Test
     void returnsFalseWhenIdIsSet() {
-      var info = new SolrEntityInformation<>(BookWithAnnotatedId.class, String.class);
+      var info = new SolrEntityInformation<>(BookWithAnnotatedId.class);
       var book = new BookWithAnnotatedId();
       book.id = "book-789";
 

@@ -36,7 +36,7 @@ class StringBasedSolrQueryTest {
     double price;
   }
 
-  interface TestRepository extends SolrRepository<Product, String> {
+  interface TestRepository extends SolrRepository<Product> {
 
     @Query("title:?0")
     List<Product> findByTitleCustom(String title);

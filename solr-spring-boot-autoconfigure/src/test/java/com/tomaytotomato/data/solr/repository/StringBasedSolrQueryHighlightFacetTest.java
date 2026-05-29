@@ -40,7 +40,7 @@ class StringBasedSolrQueryHighlightFacetTest {
     String author;
   }
 
-  interface BookRepository extends SolrRepository<Book, String> {
+  interface BookRepository extends SolrRepository<Book> {
 
     @Query("title:?0")
     @Highlight(fields = "title", prefix = "<mark>", postfix = "</mark>", snippets = 2, fragsize = 150)

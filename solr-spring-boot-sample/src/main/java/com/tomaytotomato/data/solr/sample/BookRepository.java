@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface BookRepository extends SolrRepository<Book, String> {
+public interface BookRepository extends SolrRepository<Book> {
 
   List<Book> findByAuthor(String author);
 
