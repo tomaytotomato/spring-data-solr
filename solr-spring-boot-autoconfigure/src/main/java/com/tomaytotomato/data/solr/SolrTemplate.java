@@ -143,6 +143,7 @@ public class SolrTemplate implements SolrOperations {
   @Override
   public <T> SolrPage<T> queryForPage(SimpleQuery query, Class<T> type, Pageable pageable) {
     var collection = SolrDocumentResolver.resolveCollection(type, environment);
+    query.setPageable(pageable);
     return queryForPage(collection, query, type);
   }
 

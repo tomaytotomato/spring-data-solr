@@ -45,6 +45,11 @@ public interface SolrOperations {
 
   <T> Optional<T> findById(String id, Class<T> type);
 
+  /**
+   * Executes a paged query, resolving the collection from the {@code @SolrDocument} annotation on
+   * {@code type}. The {@code pageable} is applied to the query before execution, controlling the
+   * page size and offset sent to Solr.
+   */
   <T> SolrPage<T> queryForPage(SimpleQuery query, Class<T> type, Pageable pageable);
 
   <T> CursorResult<T> queryWithCursor(String collection, SimpleQuery query, Class<T> type);

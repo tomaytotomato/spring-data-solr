@@ -816,6 +816,31 @@ class SolrTemplateTest {
   }
 
   @Nested
+  class QueryForPageWithPageable {
+
+    @Test
+    void appliesPageablePageSizeAndOffsetToSolrQuery() throws Exception {
+      var results = docList(solrDoc("1"), solrDoc("2"));
+      results.setNumFound(50L);
+
+      var response = mock(QueryResponse.class);
+      when(response.getResults()).thenReturn(results);
+      when(solrClient.query(eq("annotated-collection"), any(SolrParams.class))).thenReturn(response);
+
+      var query = new SimpleQuery(Criteria.where("*").is("*"));
+      var pageable = Pageable.ofSize(5).withPage(2); // offset = 10, rows = 5
+
+      template.queryForPage(query, AnnotatedDocument.class, pageable);
+
+      var captor = org.mockito.ArgumentCaptor.forClass(SolrParams.class);
+      verify(solrClient).query(eq("annotated-collection"), captor.capture());
+      var capturedParams = captor.getValue();
+      assertThat(capturedParams.getInt("start")).isEqualTo(10);
+      assertThat(capturedParams.getInt("rows")).isEqualTo(5);
+    }
+  }
+
+  @Nested
   class QueryForFacetPage {
 
     @Test
