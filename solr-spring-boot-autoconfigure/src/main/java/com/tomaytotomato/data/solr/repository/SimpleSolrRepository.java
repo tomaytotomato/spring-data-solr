@@ -18,19 +18,18 @@ import org.springframework.data.domain.Sort;
 public class SimpleSolrRepository<T, ID> implements SolrRepository<T, ID> {
 
   /**
-   * Default maximum number of documents returned by {@link #findAll()} and {@link #findAll(Sort)}.
+   * Default maximum number of documents returned by {@link #findAll()} and {@link #findAll(Sort)},
+   * matching Solr's default {@code maxResultWindow} collection setting of 10,000.
    *
    * <p>Solr enforces a result-window limit via the {@code maxResultWindow} collection setting
-   * (default 10,000). Requesting {@code Integer.MAX_VALUE} rows against a collection larger than
-   * that limit throws {@code "Result window is too large"}. This constant stays well inside the
-   * default limit while still returning a useful result set for typical development and
-   * small-to-medium collections.
+   * (default 10,000). Requesting more rows than this limit throws
+   * {@code "Result window is too large"}.
    *
    * <p>For collections that may exceed this limit use {@link #findAll(Pageable)} with an explicit
    * page size, or use cursor-based deep pagination via
    * {@link com.tomaytotomato.data.solr.SolrOperations#queryWithCursor}.
    */
-  static final int DEFAULT_MAX_ROWS = 1_000;
+  static final int DEFAULT_MAX_ROWS = 10_000;
 
   private final SolrTemplate solrTemplate;
   private final Class<T> entityClass;
