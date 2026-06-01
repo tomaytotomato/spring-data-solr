@@ -86,6 +86,10 @@ public class SimpleQuery {
     return this;
   }
 
+  public Pageable getPageable() {
+    return pageable;
+  }
+
   public Criteria getCriteria() {
     return criteria;
   }

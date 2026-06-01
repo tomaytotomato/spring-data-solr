@@ -1,5 +1,6 @@
 package com.tomaytotomato.data.solr.repository;
 
+import com.tomaytotomato.data.solr.SolrProperties;
 import com.tomaytotomato.data.solr.SolrTemplate;
 import com.tomaytotomato.data.solr.mapping.SolrMappingContext;
 import org.springframework.data.repository.Repository;
@@ -11,6 +12,7 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID>
 
   private SolrTemplate solrTemplate;
   private SolrMappingContext mappingContext;
+  private int defaultPageSize = 10;
 
   protected SolrRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
     super(repositoryInterface);
@@ -24,8 +26,18 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID>
     this.mappingContext = mappingContext;
   }
 
+  /**
+   * Injects {@link SolrProperties} to read the configured default page size.
+   * Wired automatically by {@link SolrRepositoryConfigurationExtension}.
+   */
+  public void setSolrProperties(SolrProperties solrProperties) {
+    if (solrProperties != null) {
+      this.defaultPageSize = solrProperties.getDefaultPageSize();
+    }
+  }
+
   @Override
   protected RepositoryFactorySupport createRepositoryFactory() {
-    return new SolrRepositoryFactory(solrTemplate, mappingContext);
+    return new SolrRepositoryFactory(solrTemplate, mappingContext, defaultPageSize);
   }
 }

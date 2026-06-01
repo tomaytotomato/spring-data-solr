@@ -13,17 +13,33 @@ public class SolrProperties {
   private final Duration requestTimeout;
   private final CommitMode commitMode;
 
+  /**
+   * Default page size used when a repository method returns a paged result
+   * ({@code Page}, {@code HighlightPage}, or {@code FacetPage}) but the caller
+   * does not supply a {@link org.springframework.data.domain.Pageable} argument.
+   * <p>
+   * A {@code WARN} is logged each time the default is applied so that unexpected
+   * result truncation is visible in logs. To suppress the warning, always pass an
+   * explicit {@code Pageable} to page-returning repository methods.
+   * <p>
+   * Configure via {@code spring.solr.default-page-size} in {@code application.yml}.
+   * Defaults to {@code 10} for backwards compatibility.
+   */
+  private final int defaultPageSize;
+
   public SolrProperties(
       StandaloneProperties standalone,
       CloudProperties cloud,
       @DefaultValue("10s") Duration connectionTimeout,
       @DefaultValue("60s") Duration requestTimeout,
-      @DefaultValue("NONE") CommitMode commitMode) {
+      @DefaultValue("NONE") CommitMode commitMode,
+      @DefaultValue("10") int defaultPageSize) {
     this.standalone = standalone;
     this.cloud = cloud;
     this.connectionTimeout = connectionTimeout;
     this.requestTimeout = requestTimeout;
     this.commitMode = commitMode;
+    this.defaultPageSize = defaultPageSize;
   }
 
   public StandaloneProperties getStandalone() {
@@ -44,6 +60,10 @@ public class SolrProperties {
 
   public CommitMode getCommitMode() {
     return commitMode;
+  }
+
+  public int getDefaultPageSize() {
+    return defaultPageSize;
   }
 
   public String getDefaultCollection() {

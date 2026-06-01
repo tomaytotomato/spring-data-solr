@@ -50,6 +50,12 @@
       "type": "com.tomaytotomato.data.solr.CommitMode",
       "description": "Controls whether SolrTemplate commits after each write operation. NONE relies on Solr's autoCommit; IMMEDIATE forces a hard commit after each write.",
       "defaultValue": "none"
+    },
+    {
+      "name": "spring.solr.default-page-size",
+      "type": "java.lang.Integer",
+      "description": "Default page size applied when a repository method returns Page, HighlightPage, or FacetPage but no Pageable argument is supplied. A WARN is logged whenever the default is used. Defaults to 10 for backwards compatibility.",
+      "defaultValue": 10
     }
   ]
 }

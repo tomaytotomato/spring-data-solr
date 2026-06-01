@@ -12,9 +12,15 @@ import org.springframework.data.repository.query.RepositoryQuery;
 public class SolrQueryLookupStrategy implements QueryLookupStrategy {
 
   private final SolrTemplate solrTemplate;
+  private final int defaultPageSize;
 
   public SolrQueryLookupStrategy(SolrTemplate solrTemplate) {
+    this(solrTemplate, 10);
+  }
+
+  public SolrQueryLookupStrategy(SolrTemplate solrTemplate, int defaultPageSize) {
     this.solrTemplate = solrTemplate;
+    this.defaultPageSize = defaultPageSize;
   }
 
   @Override
@@ -24,8 +30,8 @@ public class SolrQueryLookupStrategy implements QueryLookupStrategy {
     var queryAnnotation = method.getAnnotation(Query.class);
     if (queryAnnotation != null) {
       return new StringBasedSolrQuery(queryMethod, solrTemplate,
-          queryAnnotation.value(), queryAnnotation.count(), method);
+          queryAnnotation.value(), queryAnnotation.count(), method, defaultPageSize);
     }
-    return new PartTreeSolrQuery(queryMethod, solrTemplate, method);
+    return new PartTreeSolrQuery(queryMethod, solrTemplate, method, defaultPageSize);
   }
 }
