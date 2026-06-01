@@ -7,11 +7,16 @@ import java.util.WeakHashMap;
 import java.util.function.UnaryOperator;
 import org.apache.solr.client.solrj.beans.Field;
 
+/**
+ * Caches {@link Field} annotation mappings per entity class, resolving Java property names to
+ * their Solr field name equivalents.
+ *
+ * <p>The cache uses a {@link WeakHashMap} so that {@link Class} keys can be garbage collected when
+ * their classloader is replaced (e.g. under Spring Boot DevTools hot-reload), preventing
+ * classloader leaks. The {@link Collections#synchronizedMap} wrapper provides thread safety.
+ */
 public class SolrFieldNameResolver {
 
-  // WeakHashMap allows Class<?> keys to be GC'd when the classloader that loaded them is replaced
-  // (e.g. Spring Boot DevTools hot-reload), preventing classloader leaks. The synchronizedMap
-  // wrapper provides thread safety for this low-contention cache.
   private static final Map<Class<?>, SolrFieldNameResolver> CACHE =
       Collections.synchronizedMap(new WeakHashMap<>());
 
