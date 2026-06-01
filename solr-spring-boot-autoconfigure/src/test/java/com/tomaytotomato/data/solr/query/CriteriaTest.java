@@ -396,6 +396,28 @@ class CriteriaTest {
   }
 
   @Nested
+  class MatchAll {
+
+    @Test
+    void rendersMatchAllQuery() {
+      var result = Criteria.matchAll().toQueryString();
+      assertThat(result).isEqualTo("*:*");
+    }
+
+    @Test
+    void canBeChainedWithAnd() {
+      var result = Criteria.matchAll().and("status").is("active").toQueryString();
+      assertThat(result).isEqualTo("*:* AND status:active");
+    }
+
+    @Test
+    void canBeChainedWithOr() {
+      var result = Criteria.matchAll().or("status").is("archived").toQueryString();
+      assertThat(result).isEqualTo("*:* OR status:archived");
+    }
+  }
+
+  @Nested
   class MixedChaining {
 
     @Test

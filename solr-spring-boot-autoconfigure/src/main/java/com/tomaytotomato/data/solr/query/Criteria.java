@@ -250,6 +250,11 @@ public class Criteria {
     return node;
   }
 
+  /** Creates a criteria that matches all documents, rendering {@code *:*}. */
+  public static Criteria matchAll() {
+    return raw("*:*");
+  }
+
   // -----------------------------------------------------------------------
   // Query rendering
   // -----------------------------------------------------------------------
