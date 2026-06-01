@@ -95,7 +95,7 @@ public class SimpleSolrRepository<T> implements SolrRepository<T> {
 
   @Override
   public long count() {
-    return solrTemplate.count(collection, new SimpleQuery(Criteria.where("*").expression("*")));
+    return solrTemplate.count(collection, new SimpleQuery(Criteria.matchAll()));
   }
 
   @Override
@@ -129,7 +129,7 @@ public class SimpleSolrRepository<T> implements SolrRepository<T> {
 
   @Override
   public Page<T> findAll(Pageable pageable) {
-    var query = new SimpleQuery(Criteria.where("*").expression("*"), pageable);
+    var query = new SimpleQuery(Criteria.matchAll(), pageable);
     return solrTemplate.queryForPage(collection, query, entityClass);
   }
 
@@ -145,7 +145,7 @@ public class SimpleSolrRepository<T> implements SolrRepository<T> {
    */
   @Override
   public Iterable<T> findAll(Sort sort) {
-    var query = new SimpleQuery(Criteria.where("*").expression("*"));
+    var query = new SimpleQuery(Criteria.matchAll());
     query.setSort(sort);
     var solrQuery = query.toSolrQuery();
     solrQuery.setRows(DEFAULT_MAX_ROWS);
