@@ -125,6 +125,124 @@ the need for a `## Test Plan` section in individual PRs.
 **Tests:** 448 total (430 unit + 18 integration — integration tests skipped without Docker),
 0 failures.
 
+### Session 6: Repo Rename, Criteria.matchAll, Cleanup (Evening)
+
+**Commits:** `1686de8`, `f2a71a8`, `38849de`, `ab3e000`
+
+GitHub repo renamed from `spring-data-solr-lazarus` to `spring-data-solr`. The Lazarus
+identity stays in the local working directory name and in the project's origin story —
+it just stops being the public face. Pushed `chore:` commit updating every reference in
+the codebase (POMs, README, docs) to the new repo URL.
+
+- **#42 → PR #60** — `Criteria.matchAll()` factory method. Previous workaround
+  `Criteria.where("*").expression("*")` accidentally happened to render `*:*` but only by
+  coincidence of `Criteria`'s rendering rules. New method is explicit, documented, and the
+  intent reads at the callsite.
+- **#46 → PR #62** — Removed `spring-tx` from `solr-spring-boot-starter` POM. No transaction
+  manager integration exists; the dependency was inherited from somewhere and noise on
+  consumer classpaths.
+- `CLAUDE.md` overhauled for accuracy after Day 1 churn — module structure, gotchas section
+  rewritten, dev log convention noted.
+
+### Session 7: Third Bug Sprint — Four Parallel Agents (Evening)
+
+**Commits:** `f1769c4`, `e15db74`, `0de384d`, `ba20bd1` → PRs #63, #64, #65, #66
+
+Repeated the parallel-worker pattern with isolated worktrees. All four landed cleanly:
+
+- **#44 → PR #63** — `MicrometerSolrTemplate` had Timer instrumentation on the hot CRUD
+  methods but four operations (`savePartialUpdate`, `commit`, `queryWithCursor`, and one
+  more) were silently bypassing the meter registry. Added instrumentation matching the
+  existing pattern. The fix would have been one line per method had the previous author
+  reached for a higher-level abstraction — telegraphs the Observation API migration that
+  came later.
+- **#43 → PR #65** — `SolrTemplate.getSolrClient()` made package-private. Public access
+  invited consumers to bypass the template and lose the commit-mode contract.
+- **#49 → PR #66** — Default page size for `PartTreeSolrQuery` made configurable via
+  `spring.solr.default-page-size` (was a hardcoded `10`). Tests use `@ParameterizedTest`
+  to cover boundaries.
+- **#27 → PR #64** — Javadoc on the public mapping API and template layer. Not glamorous,
+  but it's the surface consumers will read.
+
+### Session 8: Named @Query Params, SolrCloud Integration, Common Questions (Late)
+
+**Commits:** `7f33bb1`, `e4bebb0` → `6d985c5`, `bf1a3d8` → `9f17377` → PRs #67, #68, #69
+
+Three threads ran roughly in parallel; one of them produced the day's nastiest gotcha.
+
+- **#41 → PR #69** — Named parameters in `@Query`. Previously only positional `?0` `?1`
+  substitution; now `:title :author` resolved against `@Param`-annotated method args.
+  `StringBasedSolrQuery` regex updated to recognise both forms. Mixing positional and
+  named in the same query is rejected at parse time with a clear error.
+- **#22 → PR #68** — SolrCloud integration test using Testcontainers' embedded
+  ZooKeeper. The unit tests had verified the bean wiring but nothing exercised an actual
+  cluster. This produced one architectural fix (`cc095af`): the autoconfig was previously
+  passing solr URLs to `CloudSolrClient` instead of using the ZooKeeper provider builder
+  — wrong by design, but only visible when you actually point it at ZooKeeper.
+- **#20 → PR #67** — Schema management section moved out of README into a new
+  `docs/COMMON-QUESTIONS.md`. The README intro voice survives; the dry FAQ-style content
+  lives elsewhere.
+
+**Gotchas discovered:**
+- `SolrContainer` in Testcontainers doesn't pin ports by default. `CloudSolrClient` needs
+  to be able to reach the Solr node *and* the embedded ZooKeeper, and they discover each
+  other via the address ZooKeeper registers — so if the host-side port doesn't match the
+  container-side port, the client gets a routing error like
+  `No live SolrServers available to handle this request`. Pinning the SolrContainer port
+  with a `FixedHostPortGenericContainer`-style binding fixed it.
+- `CloudSolrClient` builder API has two paths: `withSolrUrl(...)` and the ZK provider
+  builder. They look interchangeable in unit tests because nothing actually connects. In
+  practice, `withSolrUrl` constructs a client that bypasses ZooKeeper-driven routing —
+  which defeats half the point of using SolrCloud. The autoconfig had to be reworked to
+  always go through the ZK builder when `spring.solr.cloud` is configured.
+
+### Session 9: Observation API Upgrade (Late)
+
+**Commits:** `0ffedbd`, `9f89087` → PR #70
+
+Replaced the hand-rolled `Timer` instrumentation in `MicrometerSolrTemplate` with the
+Micrometer Observation API. Same metrics now flow through `ObservationRegistry`, which
+means distributed tracing context (OpenTelemetry/Zipkin/Brave) is propagated automatically
+when consumers wire an exporter. The migration was test-heavy — 250+ lines of test
+changes — because the assertion shape moves from "Timer exists with these tags" to
+"Observation was started, stopped, has these key-values, and produced these meters".
+
+The autoconfig now creates `MicrometerSolrTemplate` only when an `ObservationRegistry`
+bean is present — same wiring style as the rest of Spring Boot 4's observation
+auto-config.
+
+**Gotchas discovered:**
+- The Observation API records a `Timer` as a side-effect, but the timer's *name* depends
+  on the `ObservationConvention` registered for the observation. Default convention
+  prefixes with the observation name only. Old test assertions checking
+  `Timer.builder("solr.template.save")` had to migrate to the new naming and rely on the
+  observation registry rather than the meter registry for setup.
+- `Observation.start().stop()` and `Observation.observe(Runnable)` have subtly different
+  exception semantics. The `observe` overloads catch and re-throw, marking the observation
+  as errored; the explicit `start/stop` form doesn't unless you call `.error(throwable)`.
+  Got this wrong in one method, caught by an integration test that asserted error tags.
+
+### Session 10: Fifth Bug Sprint — Four Parallel Agents on the Mapping Layer (Late Evening)
+
+**Commits:** in flight — workers running in isolated worktrees
+
+Five issues remain in the mapping/converter layer, four of which are architecturally
+interrelated:
+
+- **#32** — `SolrCustomConversions` pipeline wired but ignored by reader/writer
+- **#39** — Bifurcated mapping model (two parallel reflection paths)
+- **#40** — `SolrDocumentResolver` should be an injectable bean
+- **#50** — `SolrPersistentEntity.getCollection()` doesn't resolve `${placeholder}` names
+
+Dispatched four developer agents in parallel, each in an isolated git worktree, each
+charged with TDD-first implementation and raising its own PR with `Closes #N`. Merge
+conflicts at PR review time are expected and accepted — they all touch the same files,
+and the human will resolve at merge. The alternative (sequential implementation) loses
+the speedup the worktree pattern is meant to provide.
+
+**Tests:** 529 total, 0 failures (up from 448 at end of Session 5 — net +81 tests across
+sessions 6–9, all green).
+
 ---
 
 ## What's Next
