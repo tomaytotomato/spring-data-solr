@@ -99,8 +99,8 @@ public class SolrAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  public SolrMappingContext solrMappingContext() {
-    return new SolrMappingContext();
+  public SolrMappingContext solrMappingContext(Environment environment) {
+    return new SolrMappingContext(environment);
   }
 
   @Bean
