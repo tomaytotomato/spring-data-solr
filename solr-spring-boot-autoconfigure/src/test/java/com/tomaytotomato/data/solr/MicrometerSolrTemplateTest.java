@@ -325,6 +325,119 @@ class MicrometerSolrTemplateTest {
   }
 
   @Nested
+  class SavePartialUpdateTimerRegistration {
+
+    @Test
+    void registersTimerAfterSavePartialUpdateOperation() throws Exception {
+      var update = new PartialUpdate("1").set("title", "New Title");
+      template.savePartialUpdate(COLLECTION, update);
+
+      assertThat(timerFor("partial-update")).isNotNull();
+      assertThat(timerFor("partial-update").count()).isEqualTo(1);
+    }
+
+    @Test
+    void savePartialUpdateExceptionPropagatesThroughTimerWrapper() throws Exception {
+      when(solrClient.add(eq(COLLECTION), any(org.apache.solr.common.SolrInputDocument.class)))
+          .thenThrow(new IOException("disk full"));
+      var update = new PartialUpdate("1").set("title", "Fail");
+
+      assertThatThrownBy(() -> template.savePartialUpdate(COLLECTION, update))
+          .isInstanceOf(SolrException.class)
+          .hasCauseInstanceOf(IOException.class);
+
+      assertThat(timerFor("partial-update")).isNotNull();
+    }
+  }
+
+  @Nested
+  class CommitTimerRegistration {
+
+    @Test
+    void registersTimerAfterCommitOperation() throws Exception {
+      template.commit(COLLECTION);
+
+      assertThat(timerFor("commit")).isNotNull();
+      assertThat(timerFor("commit").count()).isEqualTo(1);
+    }
+
+    @Test
+    void commitExceptionPropagatesThroughTimerWrapper() throws Exception {
+      when(solrClient.commit(COLLECTION)).thenThrow(new IOException("network"));
+
+      assertThatThrownBy(() -> template.commit(COLLECTION))
+          .isInstanceOf(SolrException.class)
+          .hasCauseInstanceOf(IOException.class);
+
+      assertThat(timerFor("commit")).isNotNull();
+    }
+  }
+
+  @Nested
+  class SoftCommitTimerRegistration {
+
+    @Test
+    void registersTimerAfterSoftCommitOperation() throws Exception {
+      template.softCommit(COLLECTION);
+
+      assertThat(timerFor("soft-commit")).isNotNull();
+      assertThat(timerFor("soft-commit").count()).isEqualTo(1);
+    }
+
+    @Test
+    void softCommitExceptionPropagatesThroughTimerWrapper() throws Exception {
+      when(solrClient.commit(COLLECTION, true, true, true)).thenThrow(new IOException("timeout"));
+
+      assertThatThrownBy(() -> template.softCommit(COLLECTION))
+          .isInstanceOf(SolrException.class)
+          .hasCauseInstanceOf(IOException.class);
+
+      assertThat(timerFor("soft-commit")).isNotNull();
+    }
+  }
+
+  @Nested
+  class QueryWithCursorTimerRegistration {
+
+    @Test
+    void registersTimerAfterQueryWithCursorOperation() throws Exception {
+      var results = new SolrDocumentList();
+      results.setNumFound(0L);
+      var response = mock(QueryResponse.class);
+      when(response.getResults()).thenReturn(results);
+      when(response.getNextCursorMark()).thenReturn("AoE=");
+      when(solrClient.query(eq(COLLECTION), any(SolrParams.class))).thenReturn(response);
+
+      var query = new SimpleQuery(Criteria.matchAll());
+      query.setCursorMark("*");
+      template.queryWithCursor(COLLECTION, query, TestDoc.class);
+
+      assertThat(timerFor("cursor-query")).isNotNull();
+      assertThat(timerFor("cursor-query").count()).isEqualTo(1);
+    }
+
+    @Test
+    void queryWithCursorResultPassesThroughTimerWrapper() throws Exception {
+      var solrDoc = new SolrDocument();
+      solrDoc.setField("id", "42");
+      var results = new SolrDocumentList();
+      results.add(solrDoc);
+      results.setNumFound(1L);
+      var response = mock(QueryResponse.class);
+      when(response.getResults()).thenReturn(results);
+      when(response.getNextCursorMark()).thenReturn("AoE=");
+      when(solrClient.query(eq(COLLECTION), any(SolrParams.class))).thenReturn(response);
+
+      var query = new SimpleQuery(Criteria.matchAll());
+      query.setCursorMark("*");
+      var result = template.queryWithCursor(COLLECTION, query, TestDoc.class);
+
+      assertThat(result.content()).hasSize(1);
+      assertThat(result.content().getFirst().id).isEqualTo("42");
+    }
+  }
+
+  @Nested
   class TimerTagsVerification {
 
     @Test

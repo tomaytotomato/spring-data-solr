@@ -73,6 +73,26 @@ public class MicrometerSolrTemplate extends SolrTemplate {
     timer("deleteByQuery", collection).record(() -> super.deleteByQuery(collection, query));
   }
 
+  @Override
+  public void savePartialUpdate(String collection, PartialUpdate update) {
+    timer("partial-update", collection).record(() -> super.savePartialUpdate(collection, update));
+  }
+
+  @Override
+  public void commit(String collection) {
+    timer("commit", collection).record(() -> super.commit(collection));
+  }
+
+  @Override
+  public void softCommit(String collection) {
+    timer("soft-commit", collection).record(() -> super.softCommit(collection));
+  }
+
+  @Override
+  public <T> CursorResult<T> queryWithCursor(String collection, SimpleQuery query, Class<T> type) {
+    return timer("cursor-query", collection).record(() -> super.queryWithCursor(collection, query, type));
+  }
+
   private Timer timer(String operation, String collection) {
     return Timer.builder(METRIC_NAME)
         .tag("operation", operation)
