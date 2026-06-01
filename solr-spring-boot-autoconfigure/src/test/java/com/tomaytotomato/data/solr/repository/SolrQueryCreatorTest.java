@@ -316,6 +316,9 @@ class SolrQueryCreatorTest {
   @Nested
   class InheritedFieldAnnotationMapping {
 
+    // Explicit clear after each test ensures a clean slate for isolated assertions.
+    // In production the WeakHashMap allows GC to reclaim entries automatically when
+    // a classloader is replaced; here we clear eagerly rather than waiting on GC.
     @AfterEach
     void clearCache() {
       SolrFieldNameResolver.clearCache();

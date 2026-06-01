@@ -1,14 +1,24 @@
 package com.tomaytotomato.data.solr.repository;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.WeakHashMap;
 import java.util.function.UnaryOperator;
 import org.apache.solr.client.solrj.beans.Field;
 
+/**
+ * Caches {@link Field} annotation mappings per entity class, resolving Java property names to
+ * their Solr field name equivalents.
+ *
+ * <p>The cache uses a {@link WeakHashMap} so that {@link Class} keys can be garbage collected when
+ * their classloader is replaced (e.g. under Spring Boot DevTools hot-reload), preventing
+ * classloader leaks. The {@link Collections#synchronizedMap} wrapper provides thread safety.
+ */
 public class SolrFieldNameResolver {
 
-  private static final Map<Class<?>, SolrFieldNameResolver> CACHE = new ConcurrentHashMap<>();
+  private static final Map<Class<?>, SolrFieldNameResolver> CACHE =
+      Collections.synchronizedMap(new WeakHashMap<>());
 
   private final Map<String, String> propertyToSolrField;
 
