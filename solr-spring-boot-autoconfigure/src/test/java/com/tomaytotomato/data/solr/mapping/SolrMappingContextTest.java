@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.annotation.Id;
+import org.springframework.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,6 +32,12 @@ class SolrMappingContextTest {
 
   @SolrDocument
   static class Order {
+    @Id
+    String id;
+  }
+
+  @SolrDocument(collection = "${test.collection}")
+  static class PlaceholderDocument {
     @Id
     String id;
   }
@@ -139,6 +146,47 @@ class SolrMappingContextTest {
       var property = entity.getRequiredPersistentProperty("title");
 
       assertThat(property.isScoreProperty()).isFalse();
+    }
+  }
+
+  @Nested
+  class PlaceholderCollectionResolution {
+
+    @Test
+    void resolvesPlaceholderCollectionWhenEnvironmentHasProperty() {
+      var env = new MockEnvironment().withProperty("test.collection", "resolved-collection");
+      var contextWithEnv = new SolrMappingContext(env);
+
+      var entity = contextWithEnv.getRequiredPersistentEntity(PlaceholderDocument.class);
+
+      assertThat(entity.getCollection()).isEqualTo("resolved-collection");
+    }
+
+    @Test
+    void returnsLiteralPlaceholderWhenPropertyNotDefinedInEnvironment() {
+      var env = new MockEnvironment();
+      var contextWithEnv = new SolrMappingContext(env);
+
+      var entity = contextWithEnv.getRequiredPersistentEntity(PlaceholderDocument.class);
+
+      assertThat(entity.getCollection()).isEqualTo("${test.collection}");
+    }
+
+    @Test
+    void literalCollectionNamePassesThroughUnchangedWhenEnvironmentPresent() {
+      var env = new MockEnvironment().withProperty("test.collection", "resolved-collection");
+      var contextWithEnv = new SolrMappingContext(env);
+
+      var entity = contextWithEnv.getRequiredPersistentEntity(Book.class);
+
+      assertThat(entity.getCollection()).isEqualTo("books");
+    }
+
+    @Test
+    void noEnvironmentConstructorLeavesMappingContextFunctional() {
+      var entity = context.getRequiredPersistentEntity(Book.class);
+
+      assertThat(entity.getCollection()).isEqualTo("books");
     }
   }
 }
