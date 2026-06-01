@@ -39,7 +39,7 @@ class PartTreeSolrQueryTest {
     double price;
   }
 
-  interface ProductRepository extends SolrRepository<Product, String> {
+  interface ProductRepository extends SolrRepository<Product> {
     List<Product> findByTitle(String title);
 
     Product findByTitleAndPrice(String title, double price);

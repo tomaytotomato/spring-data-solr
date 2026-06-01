@@ -24,9 +24,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
   @Override
   @SuppressWarnings("unchecked")
   public <T, ID> EntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
-    var entity = mappingContext.getRequiredPersistentEntity(domainClass);
-    var idProperty = entity.getRequiredIdProperty();
-    return new SolrEntityInformation<>(domainClass, (Class<ID>) idProperty.getType());
+    return (EntityInformation<T, ID>) new SolrEntityInformation<>(domainClass);
   }
 
   @Override

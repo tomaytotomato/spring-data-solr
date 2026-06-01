@@ -30,7 +30,7 @@ class SimpleSolrRepositoryTest {
   @Mock
   private SolrTemplate solrTemplate;
 
-  private SimpleSolrRepository<TestBook, String> repository;
+  private SimpleSolrRepository<TestBook> repository;
 
   @BeforeEach
   void setUp() {
