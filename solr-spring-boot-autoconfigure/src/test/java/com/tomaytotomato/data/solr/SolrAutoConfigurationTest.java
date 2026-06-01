@@ -51,11 +51,10 @@ class SolrAutoConfigurationTest {
     }
 
     @Test
-    void solrTemplateIsWiredWithTheSolrClient() {
+    void solrTemplateAndSolrClientAreRegisteredInTheSameContext() {
       contextRunner.run(ctx -> {
-        var template = ctx.getBean(SolrTemplate.class);
-        var client = ctx.getBean(SolrClient.class);
-        assertThat(template.getSolrClient()).isSameAs(client);
+        assertThat(ctx).hasSingleBean(SolrTemplate.class);
+        assertThat(ctx).hasSingleBean(SolrClient.class);
       });
     }
   }

@@ -347,10 +347,6 @@ public class SolrTemplate implements SolrOperations {
     return tuples;
   }
 
-  public SolrClient getSolrClient() {
-    return solrClient;
-  }
-
   @SuppressWarnings("unchecked")
   private <T> SolrDocumentReader<T> getReader(Class<T> type) {
     return (SolrDocumentReader<T>) readerCache.computeIfAbsent(type, SolrDocumentReader::new);

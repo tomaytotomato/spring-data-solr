@@ -15,6 +15,7 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.beans.Field;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -252,7 +253,7 @@ abstract class AbstractSolrIntegrationTest {
     @Test
     void reportsUpWithCollectionDetailWhenSolrIsReachable() {
       contextRunner.run(ctx -> {
-        var solrClient = ctx.getBean(SolrTemplate.class).getSolrClient();
+        var solrClient = ctx.getBean(SolrClient.class);
         var indicator = new SolrHealthIndicator(solrClient, COLLECTION);
 
         var health = indicator.health();
@@ -266,7 +267,7 @@ abstract class AbstractSolrIntegrationTest {
     @Test
     void reportsUpWithSolrVersionWhenNoCollectionConfigured() {
       contextRunner.run(ctx -> {
-        var solrClient = ctx.getBean(SolrTemplate.class).getSolrClient();
+        var solrClient = ctx.getBean(SolrClient.class);
         var indicator = new SolrHealthIndicator(solrClient, null);
 
         var health = indicator.health();

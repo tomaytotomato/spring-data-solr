@@ -431,15 +431,6 @@ class SolrTemplateTest {
   }
 
   @Nested
-  class GetSolrClient {
-
-    @Test
-    void returnsTheWrappedSolrClient() {
-      assertThat(template.getSolrClient()).isSameAs(solrClient);
-    }
-  }
-
-  @Nested
   class SaveWithAnnotatedCollection {
 
     @Test
