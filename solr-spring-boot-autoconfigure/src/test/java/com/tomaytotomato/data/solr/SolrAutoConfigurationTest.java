@@ -1,6 +1,7 @@
 package com.tomaytotomato.data.solr;
 
 import com.tomaytotomato.data.solr.mapping.SolrCustomConversions;
+import com.tomaytotomato.data.solr.mapping.SolrDocumentResolver;
 import com.tomaytotomato.data.solr.mapping.SolrMappingConverter;
 import com.tomaytotomato.data.solr.repository.SolrRepositoryAutoConfiguration;
 import com.tomaytotomato.data.solr.testfixtures.TestSolrDocument;
@@ -56,6 +57,22 @@ class SolrAutoConfigurationTest {
         assertThat(ctx).hasSingleBean(SolrTemplate.class);
         assertThat(ctx).hasSingleBean(SolrClient.class);
       });
+    }
+
+    @Test
+    void createsSolrDocumentResolverBean() {
+      contextRunner.run(ctx ->
+          assertThat(ctx).hasSingleBean(SolrDocumentResolver.class));
+    }
+
+    @Test
+    void solrDocumentResolverCanResolvePlaceholders() {
+      contextRunner
+          .withPropertyValues("my.test.collection=widgets")
+          .run(ctx -> {
+            var resolver = ctx.getBean(SolrDocumentResolver.class);
+            assertThat(resolver).isNotNull();
+          });
     }
   }
 

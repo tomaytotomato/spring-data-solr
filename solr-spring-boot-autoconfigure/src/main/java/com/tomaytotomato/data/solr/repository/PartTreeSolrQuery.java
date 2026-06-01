@@ -33,13 +33,17 @@ public class PartTreeSolrQuery implements RepositoryQuery {
   private final Class<?> domainType;
   private final Method method;
   private final int defaultPageSize;
+  private final SolrDocumentResolver documentResolver;
 
   public PartTreeSolrQuery(QueryMethod queryMethod, SolrTemplate solrTemplate, Method method) {
     this(queryMethod, solrTemplate, method, 10);
   }
 
   /**
-   * Creates a new {@code PartTreeSolrQuery}.
+   * Creates a new {@code PartTreeSolrQuery} without placeholder resolution.
+   *
+   * <p>Retained for backward compatibility. Prefer the
+   * {@link #PartTreeSolrQuery(QueryMethod, SolrTemplate, Method, SolrDocumentResolver)} form.
    *
    * @param queryMethod    Spring Data query method descriptor
    * @param solrTemplate   Solr operations delegate
@@ -54,14 +58,51 @@ public class PartTreeSolrQuery implements RepositoryQuery {
     this.tree = new PartTree(queryMethod.getName(), domainType);
     this.method = method;
     this.defaultPageSize = defaultPageSize;
+    this.documentResolver = null;
+  }
+
+  /**
+   * Creates a new {@code PartTreeSolrQuery} with environment-aware collection resolution.
+   *
+   * @param queryMethod     Spring Data query method descriptor
+   * @param solrTemplate    Solr operations delegate
+   * @param method          the repository interface method
+   * @param documentResolver resolver that expands {@code ${placeholder}} collection names
+   */
+  public PartTreeSolrQuery(QueryMethod queryMethod, SolrTemplate solrTemplate, Method method,
+      SolrDocumentResolver documentResolver) {
+    this(queryMethod, solrTemplate, method, 10, documentResolver);
+  }
+
+  /**
+   * Creates a new {@code PartTreeSolrQuery} with environment-aware collection resolution and a
+   * custom default page size.
+   *
+   * @param queryMethod     Spring Data query method descriptor
+   * @param solrTemplate    Solr operations delegate
+   * @param method          the repository interface method
+   * @param defaultPageSize page size applied when no {@code Pageable} is supplied by the caller
+   * @param documentResolver resolver that expands {@code ${placeholder}} collection names
+   */
+  public PartTreeSolrQuery(QueryMethod queryMethod, SolrTemplate solrTemplate, Method method,
+      int defaultPageSize, SolrDocumentResolver documentResolver) {
+    this.queryMethod = queryMethod;
+    this.solrTemplate = solrTemplate;
+    this.domainType = queryMethod.getEntityInformation().getJavaType();
+    this.tree = new PartTree(queryMethod.getName(), domainType);
+    this.method = method;
+    this.defaultPageSize = defaultPageSize;
+    this.documentResolver = documentResolver;
   }
 
   @Override
   public Object execute(Object[] parameters) {
     var accessor = new ParametersParameterAccessor(queryMethod.getParameters(), parameters);
-    var resolver = SolrFieldNameResolver.forClass(domainType);
-    var query = new SolrQueryCreator(tree, accessor, resolver).createQuery();
-    var collection = SolrDocumentResolver.resolveCollection(domainType);
+    var fieldNameResolver = SolrFieldNameResolver.forClass(domainType);
+    var query = new SolrQueryCreator(tree, accessor, fieldNameResolver).createQuery();
+    var collection = documentResolver != null
+        ? documentResolver.resolve(domainType)
+        : SolrDocumentResolver.resolveCollection(domainType);
 
     if (tree.isCountProjection()) {
       return solrTemplate.count(collection, query);

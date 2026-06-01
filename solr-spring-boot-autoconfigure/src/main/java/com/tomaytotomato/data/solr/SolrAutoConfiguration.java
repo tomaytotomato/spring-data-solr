@@ -1,6 +1,7 @@
 package com.tomaytotomato.data.solr;
 
 import com.tomaytotomato.data.solr.mapping.SolrCustomConversions;
+import com.tomaytotomato.data.solr.mapping.SolrDocumentResolver;
 import com.tomaytotomato.data.solr.mapping.SolrMappingContext;
 import com.tomaytotomato.data.solr.mapping.SolrMappingConverter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -89,6 +90,12 @@ public class SolrAutoConfiguration {
         .withRequestTimeout(properties.getRequestTimeout().toMillis(), TimeUnit.MILLISECONDS)
         .withDefaultCollection(collection)
         .build();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public SolrDocumentResolver solrDocumentResolver(Environment environment) {
+    return new SolrDocumentResolver(environment);
   }
 
   @Bean
