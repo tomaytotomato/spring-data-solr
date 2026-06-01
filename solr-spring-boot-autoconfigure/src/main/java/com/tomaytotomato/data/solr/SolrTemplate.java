@@ -3,6 +3,7 @@ package com.tomaytotomato.data.solr;
 import com.tomaytotomato.data.solr.mapping.SolrDocumentReader;
 import com.tomaytotomato.data.solr.mapping.SolrDocumentResolver;
 import com.tomaytotomato.data.solr.mapping.SolrDocumentWriter;
+import com.tomaytotomato.data.solr.mapping.SolrMappingContext;
 import com.tomaytotomato.data.solr.query.FacetFieldEntry;
 import com.tomaytotomato.data.solr.query.FacetQueryEntry;
 import com.tomaytotomato.data.solr.query.HighlightEntry;
@@ -57,8 +58,9 @@ public class SolrTemplate implements SolrOperations {
   private final SolrClient solrClient;
   private final CommitMode commitMode;
   private final Environment environment;
+  private final SolrMappingContext mappingContext;
   private final Map<Class<?>, SolrDocumentReader<?>> readerCache = new ConcurrentHashMap<>();
-  private final SolrDocumentWriter<?> sharedWriter = new SolrDocumentWriter<>();
+  private final SolrDocumentWriter<?> sharedWriter;
 
   /**
    * Creates a new {@link SolrTemplate} with {@link CommitMode#NONE} and no environment.
@@ -66,7 +68,7 @@ public class SolrTemplate implements SolrOperations {
    * @param solrClient the SolrJ client to delegate to
    */
   public SolrTemplate(SolrClient solrClient) {
-    this(solrClient, CommitMode.NONE, null);
+    this(solrClient, CommitMode.NONE, null, null);
   }
 
   /**
@@ -76,7 +78,7 @@ public class SolrTemplate implements SolrOperations {
    * @param commitMode controls whether writes are automatically committed
    */
   public SolrTemplate(SolrClient solrClient, CommitMode commitMode) {
-    this(solrClient, commitMode, null);
+    this(solrClient, commitMode, null, null);
   }
 
   /**
@@ -91,9 +93,31 @@ public class SolrTemplate implements SolrOperations {
    * @param environment the Spring environment for property resolution; may be {@code null}
    */
   public SolrTemplate(SolrClient solrClient, CommitMode commitMode, Environment environment) {
+    this(solrClient, commitMode, environment, null);
+  }
+
+  /**
+   * Creates a new {@link SolrTemplate} with full configuration including a
+   * {@link SolrMappingContext} for unified field-name resolution.
+   *
+   * <p>When a {@code mappingContext} is supplied, {@link SolrDocumentReader} and
+   * {@link SolrDocumentWriter} delegate field-name resolution to
+   * {@link SolrPersistentProperty#getSolrFieldName()} rather than performing their own
+   * independent reflection — ensuring a single authoritative source of truth (issue #39).
+   *
+   * @param solrClient     the SolrJ client to delegate to
+   * @param commitMode     controls whether writes are automatically committed
+   * @param environment    the Spring environment for property resolution; may be {@code null}
+   * @param mappingContext the mapping context for field-name resolution; may be {@code null}
+   *                       (falls back to independent reflection)
+   */
+  public SolrTemplate(SolrClient solrClient, CommitMode commitMode, Environment environment,
+      SolrMappingContext mappingContext) {
     this.solrClient = solrClient;
     this.commitMode = commitMode;
     this.environment = environment;
+    this.mappingContext = mappingContext;
+    this.sharedWriter = new SolrDocumentWriter<>(mappingContext);
   }
 
   @Override
@@ -393,7 +417,8 @@ public class SolrTemplate implements SolrOperations {
 
   @SuppressWarnings("unchecked")
   private <T> SolrDocumentReader<T> getReader(Class<T> type) {
-    return (SolrDocumentReader<T>) readerCache.computeIfAbsent(type, SolrDocumentReader::new);
+    return (SolrDocumentReader<T>) readerCache.computeIfAbsent(type,
+        t -> new SolrDocumentReader<>(t, mappingContext));
   }
 
   @SuppressWarnings("unchecked")

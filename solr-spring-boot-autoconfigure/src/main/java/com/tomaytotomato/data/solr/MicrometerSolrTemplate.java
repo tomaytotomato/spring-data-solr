@@ -1,5 +1,6 @@
 package com.tomaytotomato.data.solr;
 
+import com.tomaytotomato.data.solr.mapping.SolrMappingContext;
 import com.tomaytotomato.data.solr.query.SimpleQuery;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationRegistry;
@@ -16,10 +17,35 @@ public class MicrometerSolrTemplate extends SolrTemplate {
 
   private final ObservationRegistry observationRegistry;
 
+  /**
+   * Creates a {@link MicrometerSolrTemplate} with unified field-name resolution via the supplied
+   * {@link SolrMappingContext}.
+   *
+   * @param solrClient          the SolrJ client to delegate to
+   * @param commitMode          controls whether writes are automatically committed
+   * @param environment         the Spring environment for property resolution; may be {@code null}
+   * @param observationRegistry the Micrometer Observation registry for operation tracing
+   * @param mappingContext      the mapping context for field-name resolution; may be {@code null}
+   */
+  public MicrometerSolrTemplate(SolrClient solrClient, CommitMode commitMode,
+      Environment environment, ObservationRegistry observationRegistry,
+      SolrMappingContext mappingContext) {
+    super(solrClient, commitMode, environment, mappingContext);
+    this.observationRegistry = observationRegistry;
+  }
+
+  /**
+   * Creates a {@link MicrometerSolrTemplate} without a mapping context. Field-name resolution
+   * falls back to independent reflection. Retained for backward compatibility.
+   *
+   * @param solrClient          the SolrJ client to delegate to
+   * @param commitMode          controls whether writes are automatically committed
+   * @param environment         the Spring environment for property resolution; may be {@code null}
+   * @param observationRegistry the Micrometer Observation registry for operation tracing
+   */
   public MicrometerSolrTemplate(SolrClient solrClient, CommitMode commitMode,
       Environment environment, ObservationRegistry observationRegistry) {
-    super(solrClient, commitMode, environment);
-    this.observationRegistry = observationRegistry;
+    this(solrClient, commitMode, environment, observationRegistry, null);
   }
 
   @Override

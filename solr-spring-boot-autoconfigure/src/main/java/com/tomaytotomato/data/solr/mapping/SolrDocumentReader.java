@@ -10,9 +10,31 @@ import org.apache.solr.common.SolrDocument;
 public class SolrDocumentReader<T> implements SolrDocumentConverter<SolrDocument, T> {
 
   private final Class<T> type;
+  private final SolrMappingContext mappingContext;
 
-  public SolrDocumentReader(Class<T> type) {
+  /**
+   * Creates a reader that resolves field names via the supplied {@link SolrMappingContext}.
+   * This is the preferred constructor — field-name resolution is delegated to
+   * {@link SolrPersistentProperty#getSolrFieldName()} rather than performed by independent
+   * reflection, ensuring a single authoritative source of truth.
+   *
+   * @param type           the entity class to read into
+   * @param mappingContext the mapping context to delegate field-name resolution to
+   */
+  public SolrDocumentReader(Class<T> type, SolrMappingContext mappingContext) {
     this.type = type;
+    this.mappingContext = mappingContext;
+  }
+
+  /**
+   * Creates a reader that resolves field names via its own reflection over {@code @Field}
+   * annotations. Retained for backward compatibility; prefer
+   * {@link #SolrDocumentReader(Class, SolrMappingContext)} for new usage.
+   *
+   * @param type the entity class to read into
+   */
+  public SolrDocumentReader(Class<T> type) {
+    this(type, null);
   }
 
   @Override
@@ -20,7 +42,7 @@ public class SolrDocumentReader<T> implements SolrDocumentConverter<SolrDocument
     try {
       var instance = type.getDeclaredConstructor().newInstance();
       for (var field : annotatedFields(type)) {
-        var solrFieldName = solrFieldName(field);
+        var solrFieldName = resolveSolrFieldName(field);
         var value = source.getFieldValue(solrFieldName);
         if (value == null) {
           continue;
@@ -33,6 +55,24 @@ public class SolrDocumentReader<T> implements SolrDocumentConverter<SolrDocument
     } catch (ReflectiveOperationException e) {
       throw new IllegalStateException("Failed to map SolrDocument to " + type.getName(), e);
     }
+  }
+
+  /**
+   * Resolves the Solr field name for a Java field. When a {@link SolrMappingContext} is
+   * available, delegates to {@link SolrPersistentProperty#getSolrFieldName()}. Falls back
+   * to reading the {@code @Field} annotation directly when no context is present.
+   */
+  private String resolveSolrFieldName(Field field) {
+    if (mappingContext != null) {
+      var entity = mappingContext.getPersistentEntity(type);
+      if (entity != null) {
+        var property = entity.getPersistentProperty(field.getName());
+        if (property != null) {
+          return property.getSolrFieldName();
+        }
+      }
+    }
+    return solrFieldNameFromAnnotation(field);
   }
 
   private Object coerce(Object value, Class<?> targetType) {
@@ -75,7 +115,7 @@ public class SolrDocumentReader<T> implements SolrDocumentConverter<SolrDocument
     }
   }
 
-  private static String solrFieldName(Field field) {
+  private static String solrFieldNameFromAnnotation(Field field) {
     var annotation = field.getAnnotation(org.apache.solr.client.solrj.beans.Field.class);
     var value = annotation.value();
     if (value.isEmpty() || "#default".equals(value)) {
