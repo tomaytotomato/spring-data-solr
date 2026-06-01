@@ -142,7 +142,7 @@ class SolrPropertiesTest {
     void cloudDefaultCollectionTakesPrecedenceOverStandaloneInTopLevelGetter() {
       var cloud = new SolrProperties.CloudProperties("localhost:2181", "cloud-col");
       var standalone = new SolrProperties.StandaloneProperties("http://localhost:8983/solr", "standalone-col");
-      var properties = new SolrProperties(standalone, cloud, Duration.ofSeconds(10), Duration.ofSeconds(60), CommitMode.NONE);
+      var properties = new SolrProperties(standalone, cloud, Duration.ofSeconds(10), Duration.ofSeconds(60), CommitMode.NONE, 10);
       assertThat(properties.getDefaultCollection()).isEqualTo("cloud-col");
     }
   }
@@ -166,6 +166,24 @@ class SolrPropertiesTest {
           .run(ctx ->
               assertThat(ctx.getBean(SolrProperties.class).getRequestTimeout())
                   .isEqualTo(Duration.ofSeconds(30)));
+    }
+  }
+
+  @Nested
+  class DefaultPageSize {
+
+    @Test
+    void defaultPageSizeIsTenWhenNotConfigured() {
+      contextRunner.run(ctx ->
+          assertThat(ctx.getBean(SolrProperties.class).getDefaultPageSize()).isEqualTo(10));
+    }
+
+    @Test
+    void customDefaultPageSizeBindsFromProperty() {
+      contextRunner
+          .withPropertyValues("spring.solr.default-page-size=50")
+          .run(ctx ->
+              assertThat(ctx.getBean(SolrProperties.class).getDefaultPageSize()).isEqualTo(50));
     }
   }
 }

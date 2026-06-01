@@ -36,6 +36,13 @@ public class SolrRepositoryConfigurationExtension extends RepositoryConfiguratio
     return Collections.singleton(SolrRepository.class);
   }
 
+  /**
+   * Bean name assigned by {@code @EnableConfigurationProperties} for {@code SolrProperties}.
+   * Spring Boot constructs this as {@code prefix-fully.qualified.ClassName}.
+   */
+  private static final String SOLR_PROPERTIES_BEAN_NAME =
+      "spring.solr-com.tomaytotomato.data.solr.SolrProperties";
+
   @Override
   public void postProcess(BeanDefinitionBuilder builder, RepositoryConfigurationSource source) {
     var templateRef = source.getAttribute("solrTemplateRef")
@@ -43,6 +50,7 @@ public class SolrRepositoryConfigurationExtension extends RepositoryConfiguratio
         .orElse("solrTemplate");
     builder.addPropertyReference("solrTemplate", templateRef);
     builder.addPropertyReference("mappingContext", "solrMappingContext");
+    builder.addPropertyReference("solrProperties", SOLR_PROPERTIES_BEAN_NAME);
   }
 
   @Override
@@ -50,5 +58,6 @@ public class SolrRepositoryConfigurationExtension extends RepositoryConfiguratio
     var attributes = config.getAttributes();
     builder.addPropertyReference("solrTemplate", attributes.getString("solrTemplateRef"));
     builder.addPropertyReference("mappingContext", "solrMappingContext");
+    builder.addPropertyReference("solrProperties", SOLR_PROPERTIES_BEAN_NAME);
   }
 }

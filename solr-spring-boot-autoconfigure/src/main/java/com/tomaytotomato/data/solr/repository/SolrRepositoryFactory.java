@@ -15,10 +15,16 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
   private final SolrTemplate solrTemplate;
   private final SolrMappingContext mappingContext;
+  private final int defaultPageSize;
 
   public SolrRepositoryFactory(SolrTemplate solrTemplate, SolrMappingContext mappingContext) {
+    this(solrTemplate, mappingContext, 10);
+  }
+
+  public SolrRepositoryFactory(SolrTemplate solrTemplate, SolrMappingContext mappingContext, int defaultPageSize) {
     this.solrTemplate = solrTemplate;
     this.mappingContext = mappingContext;
+    this.defaultPageSize = defaultPageSize;
   }
 
   @Override
@@ -40,6 +46,6 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
   @Override
   protected Optional<QueryLookupStrategy> getQueryLookupStrategy(Key key,
       ValueExpressionDelegate delegate) {
-    return Optional.of(new SolrQueryLookupStrategy(solrTemplate));
+    return Optional.of(new SolrQueryLookupStrategy(solrTemplate, defaultPageSize));
   }
 }
