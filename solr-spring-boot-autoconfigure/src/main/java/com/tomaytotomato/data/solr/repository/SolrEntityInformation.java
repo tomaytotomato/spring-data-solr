@@ -9,6 +9,29 @@ public class SolrEntityInformation<T> implements EntityInformation<T, String> {
   private final String collection;
   private final java.lang.reflect.Field idField;
 
+  /**
+   * Creates entity information, resolving the collection name via the supplied
+   * {@link SolrDocumentResolver} (which has an {@link org.springframework.core.env.Environment}
+   * so that {@code ${placeholder}} values are expanded correctly).
+   *
+   * @param entityClass the domain class
+   * @param resolver    the resolver to use for collection name lookup
+   */
+  public SolrEntityInformation(Class<T> entityClass, SolrDocumentResolver resolver) {
+    this.entityClass = entityClass;
+    this.collection = resolver.resolve(entityClass);
+    this.idField = resolveIdField(entityClass);
+  }
+
+  /**
+   * Creates entity information without placeholder resolution.
+   *
+   * <p>Retained for backward compatibility. Prefer the
+   * {@link #SolrEntityInformation(Class, SolrDocumentResolver)} constructor when a Spring
+   * {@link org.springframework.core.env.Environment} is available.
+   *
+   * @param entityClass the domain class
+   */
   public SolrEntityInformation(Class<T> entityClass) {
     this.entityClass = entityClass;
     this.collection = SolrDocumentResolver.resolveCollection(entityClass);

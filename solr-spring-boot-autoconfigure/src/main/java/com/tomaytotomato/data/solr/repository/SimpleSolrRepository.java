@@ -53,10 +53,30 @@ public class SimpleSolrRepository<T> implements SolrRepository<T> {
   private final SolrEntityInformation<T> entityInformation;
 
   /**
-   * Creates a new {@link SimpleSolrRepository} for the given entity class.
+   * Creates a new {@link SimpleSolrRepository} for the given entity class, resolving the
+   * collection name via the supplied {@link SolrDocumentResolver} so that
+   * {@code ${placeholder}} values in {@link com.tomaytotomato.data.solr.mapping.SolrDocument#collection()}
+   * are expanded against the Spring {@link org.springframework.core.env.Environment}.
    *
-   * <p>The Solr collection name is resolved immediately from the
-   * {@link com.tomaytotomato.data.solr.mapping.SolrDocument} annotation on {@code entityClass}.
+   * @param solrTemplate the template to delegate persistence operations to
+   * @param entityClass  the domain class managed by this repository
+   * @param resolver     resolver used to determine the collection name
+   */
+  public SimpleSolrRepository(SolrTemplate solrTemplate, Class<T> entityClass,
+      SolrDocumentResolver resolver) {
+    this.solrTemplate = solrTemplate;
+    this.entityClass = entityClass;
+    this.collection = resolver.resolve(entityClass);
+    this.entityInformation = new SolrEntityInformation<>(entityClass, resolver);
+  }
+
+  /**
+   * Creates a new {@link SimpleSolrRepository} for the given entity class without placeholder
+   * resolution.
+   *
+   * <p>Retained for backward compatibility. Prefer the
+   * {@link #SimpleSolrRepository(SolrTemplate, Class, SolrDocumentResolver)} constructor when a
+   * Spring {@link org.springframework.core.env.Environment} is available.
    *
    * @param solrTemplate the template to delegate persistence operations to
    * @param entityClass the domain class managed by this repository

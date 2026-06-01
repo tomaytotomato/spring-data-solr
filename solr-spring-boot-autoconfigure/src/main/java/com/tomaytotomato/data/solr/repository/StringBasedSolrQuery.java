@@ -89,6 +89,7 @@ public class StringBasedSolrQuery implements RepositoryQuery {
   private final Class<?> domainType;
   private final Method method;
   private final int defaultPageSize;
+  private final SolrDocumentResolver documentResolver;
 
   public StringBasedSolrQuery(QueryMethod queryMethod, SolrTemplate solrTemplate,
       String queryString, boolean isCountQuery, Method method) {
@@ -96,7 +97,10 @@ public class StringBasedSolrQuery implements RepositoryQuery {
   }
 
   /**
-   * Creates a new {@code StringBasedSolrQuery}.
+   * Creates a new {@code StringBasedSolrQuery} without placeholder resolution.
+   *
+   * <p>Retained for backward compatibility. Prefer the form that accepts a
+   * {@link SolrDocumentResolver}.
    *
    * @param queryMethod     Spring Data query method descriptor
    * @param solrTemplate    Solr operations delegate
@@ -115,12 +119,56 @@ public class StringBasedSolrQuery implements RepositoryQuery {
     this.domainType = queryMethod.getEntityInformation().getJavaType();
     this.method = method;
     this.defaultPageSize = defaultPageSize;
+    this.documentResolver = null;
+  }
+
+  /**
+   * Creates a new {@code StringBasedSolrQuery} with environment-aware collection resolution.
+   *
+   * @param queryMethod     Spring Data query method descriptor
+   * @param solrTemplate    Solr operations delegate
+   * @param queryString     raw Solr query string
+   * @param isCountQuery    {@code true} when the method is a count query
+   * @param method          the repository interface method
+   * @param documentResolver resolver that expands {@code ${placeholder}} collection names
+   */
+  public StringBasedSolrQuery(QueryMethod queryMethod, SolrTemplate solrTemplate,
+      String queryString, boolean isCountQuery, Method method,
+      SolrDocumentResolver documentResolver) {
+    this(queryMethod, solrTemplate, queryString, isCountQuery, method, 10, documentResolver);
+  }
+
+  /**
+   * Creates a new {@code StringBasedSolrQuery} with environment-aware collection resolution and
+   * a custom default page size.
+   *
+   * @param queryMethod     Spring Data query method descriptor
+   * @param solrTemplate    Solr operations delegate
+   * @param queryString     raw Solr query string
+   * @param isCountQuery    {@code true} when the method is a count query
+   * @param method          the repository interface method
+   * @param defaultPageSize page size applied when no {@code Pageable} is supplied by the caller
+   * @param documentResolver resolver that expands {@code ${placeholder}} collection names
+   */
+  public StringBasedSolrQuery(QueryMethod queryMethod, SolrTemplate solrTemplate,
+      String queryString, boolean isCountQuery, Method method, int defaultPageSize,
+      SolrDocumentResolver documentResolver) {
+    this.queryMethod = queryMethod;
+    this.solrTemplate = solrTemplate;
+    this.queryString = queryString;
+    this.isCountQuery = isCountQuery;
+    this.domainType = queryMethod.getEntityInformation().getJavaType();
+    this.method = method;
+    this.defaultPageSize = defaultPageSize;
+    this.documentResolver = documentResolver;
   }
 
   @Override
   public Object execute(Object[] parameters) {
     var resolvedQuery = resolveParameters(queryString, parameters);
-    var collection = SolrDocumentResolver.resolveCollection(domainType);
+    var collection = documentResolver != null
+        ? documentResolver.resolve(domainType)
+        : SolrDocumentResolver.resolveCollection(domainType);
 
     if (isCountQuery) {
       return solrTemplate.count(collection, new SolrQuery(resolvedQuery));
