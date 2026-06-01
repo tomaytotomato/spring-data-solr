@@ -49,14 +49,6 @@ class SolrCloudIntegrationTest {
    * A single Solr 10 node started with an embedded ZooKeeper ({@code -DzkRun}).
    * This gives us a functional SolrCloud cluster with one shard and one replica —
    * enough to verify the full {@link CloudSolrClient} wiring path.
-   *
-   * <p>Ports 8983 (Solr) and 9983 (ZooKeeper) are pinned to the same host ports.
-   * {@code SolrContainer} starts Solr with {@code --host localhost}, so the node
-   * registers itself in ZK as {@code localhost:8983}. The {@link CloudSolrClient}
-   * running on the host JVM then resolves that to the host's port 8983 — which
-   * only works if the container's 8983 is bound to host 8983. This is the
-   * standard Testcontainers/SolrCloud bridging pattern; it does require those
-   * ports to be free on the test runner.
    */
   @Container
   static final SolrContainer solr = new SolrContainer(DockerImageName.parse("solr:10"))
@@ -64,6 +56,7 @@ class SolrCloudIntegrationTest {
       .withCollection(COLLECTION);
 
   static {
+    // Solr advertises itself in ZK as localhost:8983, so the host ports must match.
     solr.setPortBindings(List.of("8983:8983", "9983:9983"));
   }
 
