@@ -9,26 +9,42 @@ import org.apache.solr.common.SolrInputDocument;
 public class SolrDocumentWriter<T> implements SolrDocumentConverter<T, SolrInputDocument> {
 
   private final SolrMappingContext mappingContext;
+  private final SolrMappingConverter mappingConverter;
 
   /**
-   * Creates a writer that resolves field names via the supplied {@link SolrMappingContext}.
-   * This is the preferred constructor — field-name resolution is delegated to
-   * {@link SolrPersistentProperty#getSolrFieldName()} rather than performed by independent
-   * reflection, ensuring a single authoritative source of truth.
-   *
-   * @param mappingContext the mapping context to delegate field-name resolution to
+   * Creates a writer with no mapping context and no custom converters.
    */
-  public SolrDocumentWriter(SolrMappingContext mappingContext) {
-    this.mappingContext = mappingContext;
+  public SolrDocumentWriter() {
+    this(null, new SolrMappingConverter());
   }
 
   /**
-   * Creates a writer that resolves field names via its own reflection over {@code @Field}
-   * annotations. Retained for backward compatibility; prefer
-   * {@link #SolrDocumentWriter(SolrMappingContext)} for new usage.
+   * Creates a writer that resolves field names via the supplied {@link SolrMappingContext}.
+   *
+   * @param mappingContext the mapping context for field-name resolution
    */
-  public SolrDocumentWriter() {
-    this(null);
+  public SolrDocumentWriter(SolrMappingContext mappingContext) {
+    this(mappingContext, new SolrMappingConverter());
+  }
+
+  /**
+   * Creates a writer that consults the supplied {@link SolrMappingConverter} during field mapping.
+   *
+   * @param mappingConverter the converter to use for custom type conversions
+   */
+  public SolrDocumentWriter(SolrMappingConverter mappingConverter) {
+    this(null, mappingConverter);
+  }
+
+  /**
+   * Creates a writer with both field-name resolution and custom type conversion support.
+   *
+   * @param mappingContext   the mapping context for field-name resolution; may be {@code null}
+   * @param mappingConverter the converter for custom type conversions; must not be {@code null}
+   */
+  public SolrDocumentWriter(SolrMappingContext mappingContext, SolrMappingConverter mappingConverter) {
+    this.mappingContext = mappingContext;
+    this.mappingConverter = mappingConverter;
   }
 
   @Override
@@ -42,10 +58,11 @@ public class SolrDocumentWriter<T> implements SolrDocumentConverter<T, SolrInput
         if (value == null) {
           continue;
         }
+        var solrValue = toSolrValue(value);
         if (value instanceof Collection<?> collection) {
           doc.setField(solrFieldName, new ArrayList<>(collection));
         } else {
-          doc.setField(solrFieldName, value);
+          doc.setField(solrFieldName, solrValue);
         }
       }
       return doc;
@@ -71,6 +88,18 @@ public class SolrDocumentWriter<T> implements SolrDocumentConverter<T, SolrInput
       }
     }
     return solrFieldNameFromAnnotation(field);
+  }
+
+  /**
+   * Converts a Java field value to its Solr-storable representation.
+   * If a converter is registered for the value's type to {@link String}, it is applied.
+   * Otherwise the value is returned as-is.
+   */
+  private Object toSolrValue(Object value) {
+    if (mappingConverter.canConvert(value.getClass(), String.class)) {
+      return mappingConverter.convert(value, String.class);
+    }
+    return value;
   }
 
   private static String solrFieldNameFromAnnotation(Field field) {

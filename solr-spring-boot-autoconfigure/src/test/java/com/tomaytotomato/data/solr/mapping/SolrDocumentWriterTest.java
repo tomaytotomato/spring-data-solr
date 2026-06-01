@@ -3,6 +3,7 @@ package com.tomaytotomato.data.solr.mapping;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.time.LocalDate;
 import java.util.List;
 import org.apache.solr.client.solrj.beans.Field;
 import org.junit.jupiter.api.Nested;
@@ -111,6 +112,42 @@ class SolrDocumentWriterTest {
     }
   }
 
+  @Nested
+  class ConvertWithCustomConverter {
+
+    @Test
+    void appliesRegisteredWriteConverterForNonStringField() {
+      var reg = SolrConverterRegistration.of(LocalDate.class, String.class, LocalDate::toString);
+      var mappingConverter = new SolrMappingConverter(new SolrCustomConversions(List.of(reg)));
+      var writer = new SolrDocumentWriter<>(mappingConverter);
+
+      var entity = new DatedEntity();
+      entity.id = "d-1";
+      entity.publishedDate = LocalDate.of(2024, 6, 1);
+
+      var doc = writer.convert(entity);
+
+      assertThat(doc.getFieldValue("id")).isEqualTo("d-1");
+      assertThat(doc.getFieldValue("pub_date_s")).isEqualTo("2024-06-01");
+    }
+
+    @Test
+    void withoutConverterLocalDateIsPassedThroughAsIs() {
+      var writer = new SolrDocumentWriter<>();
+
+      var entity = new DatedEntity();
+      entity.id = "d-2";
+      entity.publishedDate = LocalDate.of(2024, 6, 1);
+
+      var doc = writer.convert(entity);
+
+      // Without a converter the LocalDate is stored as-is — Solr may not accept it
+      // but the writer itself does not crash
+      assertThat(doc.getFieldValue("id")).isEqualTo("d-2");
+      assertThat(doc.getFieldValue("pub_date_s")).isEqualTo(LocalDate.of(2024, 6, 1));
+    }
+  }
+
   public static class BookEntity {
     @Field("id") public String id;
     @Field("title_t") public String title;
@@ -151,5 +188,10 @@ class SolrDocumentWriterTest {
     public NoDefaultConstructorEntity(String value) {
       this.value = value;
     }
+  }
+
+  public static class DatedEntity {
+    @Field("id") public String id;
+    @Field("pub_date_s") public LocalDate publishedDate;
   }
 }
