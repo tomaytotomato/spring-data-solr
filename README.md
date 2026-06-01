@@ -177,6 +177,7 @@ public interface BookRepository extends SolrRepository<Book, String> {
 
 - [A picture of Josh Long](https://joshlong.com/img/josh-hero-image.2ac6dba0.png)
 - [Architecture](docs/ARCHITECTURE.md)
+- [Common Questions](docs/COMMON-QUESTIONS.md)
 - [Dev Log](docs/DEVLOG.md)
 - [Limitations of the Original](docs/LIMITATIONS.md)
 - [Original Project (Spring Attic)](https://github.com/spring-attic/spring-data-solr)
