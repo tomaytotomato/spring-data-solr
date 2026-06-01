@@ -199,10 +199,13 @@ class SolrAutoConfigurationTest {
     }
 
     @Test
-    void attemptsCloudClientCreationWhenCloudZkHostIsSet() {
+    void createsCloudClientWhenCloudZkHostIsSet() {
       contextRunner
           .withPropertyValues("spring.solr.cloud.zk-host=localhost:2181")
-          .run(ctx -> assertThat(ctx).hasFailed());
+          .run(ctx -> {
+            assertThat(ctx).hasNotFailed();
+            assertThat(ctx.getBean(SolrClient.class)).isInstanceOf(CloudSolrClient.class);
+          });
     }
 
     @Test

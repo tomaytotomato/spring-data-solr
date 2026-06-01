@@ -4,7 +4,9 @@ import com.tomaytotomato.data.solr.mapping.SolrCustomConversions;
 import com.tomaytotomato.data.solr.mapping.SolrMappingContext;
 import com.tomaytotomato.data.solr.mapping.SolrMappingConverter;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -54,10 +56,28 @@ public class SolrAutoConfiguration {
     var httpClientBuilder = new HttpJdkSolrClient.Builder()
         .withConnectionTimeout(properties.getConnectionTimeout().toMillis(), TimeUnit.MILLISECONDS)
         .withRequestTimeout(properties.getRequestTimeout().toMillis(), TimeUnit.MILLISECONDS);
-    return new CloudSolrClient.Builder(List.of(cloud.zkHost()))
+    var zk = parseZkHost(cloud.zkHost());
+    return new CloudSolrClient.Builder(zk.hosts(), zk.chroot())
         .withDefaultCollection(cloud.defaultCollection())
         .withHttpClientBuilder(httpClientBuilder)
         .build();
+  }
+
+  // Splits a SolrCloud zk-host string of the form "host1:2181,host2:2181[/chroot]"
+  // into the host list and optional chroot expected by CloudSolrClient.Builder.
+  // The single-arg Builder(List<String>) overload treats its argument as Solr base URLs,
+  // not ZK hosts — so we must use the two-arg form to get the ZooKeeper provider.
+  private static ZkHost parseZkHost(String zkHost) {
+    var slash = zkHost.indexOf('/');
+    if (slash >= 0) {
+      var hosts = zkHost.substring(0, slash);
+      var chroot = zkHost.substring(slash);
+      return new ZkHost(Arrays.asList(hosts.split(",")), Optional.of(chroot));
+    }
+    return new ZkHost(Arrays.asList(zkHost.split(",")), Optional.empty());
+  }
+
+  private record ZkHost(List<String> hosts, Optional<String> chroot) {
   }
 
   private SolrClient buildStandaloneClient(SolrProperties properties) {
