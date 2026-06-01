@@ -3,7 +3,7 @@ package com.tomaytotomato.data.solr;
 import com.tomaytotomato.data.solr.mapping.SolrCustomConversions;
 import com.tomaytotomato.data.solr.mapping.SolrMappingContext;
 import com.tomaytotomato.data.solr.mapping.SolrMappingConverter;
-import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.observation.ObservationRegistry;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -26,15 +26,15 @@ import org.springframework.core.env.Environment;
 public class SolrAutoConfiguration {
 
   @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(MeterRegistry.class)
-  @ConditionalOnBean(MeterRegistry.class)
+  @ConditionalOnClass(ObservationRegistry.class)
+  @ConditionalOnBean(ObservationRegistry.class)
   static class MicrometerSolrConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(SolrTemplate.class)
     SolrTemplate micrometerSolrTemplate(SolrClient solrClient, SolrProperties properties,
-        Environment environment, MeterRegistry meterRegistry) {
-      return new MicrometerSolrTemplate(solrClient, properties.getCommitMode(), environment, meterRegistry);
+        Environment environment, ObservationRegistry observationRegistry) {
+      return new MicrometerSolrTemplate(solrClient, properties.getCommitMode(), environment, observationRegistry);
     }
   }
 

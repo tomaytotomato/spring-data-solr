@@ -2,9 +2,8 @@ package com.tomaytotomato.data.solr;
 
 import com.tomaytotomato.data.solr.query.Criteria;
 import com.tomaytotomato.data.solr.query.SimpleQuery;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import io.micrometer.observation.tck.TestObservationRegistry;
+import io.micrometer.observation.tck.TestObservationRegistryAssert;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -37,13 +36,13 @@ class MicrometerSolrTemplateTest {
   @Mock
   private SolrClient solrClient;
 
-  private MeterRegistry meterRegistry;
+  private TestObservationRegistry observationRegistry;
   private MicrometerSolrTemplate template;
 
   @BeforeEach
   void setUp() {
-    meterRegistry = new SimpleMeterRegistry();
-    template = new MicrometerSolrTemplate(solrClient, CommitMode.NONE, null, meterRegistry);
+    observationRegistry = TestObservationRegistry.create();
+    template = new MicrometerSolrTemplate(solrClient, CommitMode.NONE, null, observationRegistry);
   }
 
   static TestDoc doc(String id) {
@@ -56,18 +55,15 @@ class MicrometerSolrTemplateTest {
     @org.apache.solr.client.solrj.beans.Field public String id;
   }
 
-  private Timer timerFor(String operation) {
-    return meterRegistry.find("solr.operations")
-        .tag("operation", operation)
-        .tag("collection", COLLECTION)
-        .timer();
+  private TestObservationRegistryAssert thenObservation() {
+    return TestObservationRegistryAssert.assertThat(observationRegistry);
   }
 
   @Nested
-  class QueryTimerRegistration {
+  class QueryObservation {
 
     @Test
-    void registersTimerAfterQueryOperation() throws Exception {
+    void createsObservationAfterQueryOperation() throws Exception {
       var solrQuery = new SolrQuery("*:*");
       var response = mock(QueryResponse.class);
       when(response.getResults()).thenReturn(new SolrDocumentList());
@@ -75,12 +71,15 @@ class MicrometerSolrTemplateTest {
 
       template.query(COLLECTION, solrQuery, TestDoc.class);
 
-      assertThat(timerFor("query")).isNotNull();
-      assertThat(timerFor("query").count()).isEqualTo(1);
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "query")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
 
     @Test
-    void queryResultPassesThroughTheTimerWrapper() throws Exception {
+    void queryResultPassesThroughObservationWrapper() throws Exception {
       var solrQuery = new SolrQuery("title:foo");
       var solrDoc = new SolrDocument();
       solrDoc.setField("id", "1");
@@ -97,7 +96,7 @@ class MicrometerSolrTemplateTest {
     }
 
     @Test
-    void queryExceptionPropagatesThroughTimerWrapper() throws Exception {
+    void queryExceptionPropagatesThroughObservationWrapper() throws Exception {
       var solrQuery = new SolrQuery("*:*");
       when(solrClient.query(COLLECTION, solrQuery)).thenThrow(new IOException("network"));
 
@@ -105,37 +104,37 @@ class MicrometerSolrTemplateTest {
           .isInstanceOf(SolrException.class)
           .hasCauseInstanceOf(IOException.class);
 
-      assertThat(timerFor("query")).isNotNull();
+      thenObservation().hasObservationWithNameEqualTo("solr.operation");
     }
   }
 
   @Nested
-  class QueryForPageTimerRegistration {
+  class QueryForPageObservation {
 
     @Test
-    void registersTimerAfterQueryForPageOperation() throws Exception {
+    void createsObservationAfterQueryForPageOperation() throws Exception {
       var results = new SolrDocumentList();
       results.setNumFound(0L);
-
       var response = mock(QueryResponse.class);
       when(response.getResults()).thenReturn(results);
       when(solrClient.query(eq(COLLECTION), any(SolrParams.class))).thenReturn(response);
 
-      var query = new SimpleQuery(Criteria.where("*").is("*"));
-      template.queryForPage(COLLECTION, query, TestDoc.class);
+      template.queryForPage(COLLECTION, new SimpleQuery(Criteria.where("*").is("*")), TestDoc.class);
 
-      assertThat(timerFor("queryForPage")).isNotNull();
-      assertThat(timerFor("queryForPage").count()).isEqualTo(1);
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "queryForPage")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
 
     @Test
-    void queryForPageResultPassesThroughTimerWrapper() throws Exception {
+    void queryForPageResultPassesThroughObservationWrapper() throws Exception {
       var solrDoc = new SolrDocument();
       solrDoc.setField("id", "2");
       var results = new SolrDocumentList();
       results.add(solrDoc);
       results.setNumFound(1L);
-
       var response = mock(QueryResponse.class);
       when(response.getResults()).thenReturn(results);
       when(solrClient.query(eq(COLLECTION), any(SolrParams.class))).thenReturn(response);
@@ -148,10 +147,10 @@ class MicrometerSolrTemplateTest {
   }
 
   @Nested
-  class CountTimerRegistration {
+  class CountObservation {
 
     @Test
-    void registersTimerAfterCountWithSolrQueryOperation() throws Exception {
+    void createsObservationAfterCountWithSolrQuery() throws Exception {
       var docList = new SolrDocumentList();
       docList.setNumFound(7L);
       var response = mock(QueryResponse.class);
@@ -160,12 +159,15 @@ class MicrometerSolrTemplateTest {
 
       template.count(COLLECTION, new SolrQuery("*:*"));
 
-      assertThat(timerFor("count")).isNotNull();
-      assertThat(timerFor("count").count()).isEqualTo(1);
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "count")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
 
     @Test
-    void registersTimerAfterCountWithSimpleQueryOperation() throws Exception {
+    void createsObservationAfterCountWithSimpleQuery() throws Exception {
       var docList = new SolrDocumentList();
       docList.setNumFound(3L);
       var response = mock(QueryResponse.class);
@@ -174,11 +176,14 @@ class MicrometerSolrTemplateTest {
 
       template.count(COLLECTION, new SimpleQuery(Criteria.where("*").is("*")));
 
-      assertThat(timerFor("count")).isNotNull();
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "count");
     }
 
     @Test
-    void countResultPassesThroughTimerWrapper() throws Exception {
+    void countResultPassesThroughObservationWrapper() throws Exception {
       var docList = new SolrDocumentList();
       docList.setNumFound(99L);
       var response = mock(QueryResponse.class);
@@ -192,19 +197,22 @@ class MicrometerSolrTemplateTest {
   }
 
   @Nested
-  class SaveTimerRegistration {
+  class SaveObservation {
 
     @Test
-    void registersTimerAfterSaveWithCollectionOperation() throws Exception {
+    void createsObservationAfterSaveOperation() throws Exception {
       var entity = doc("1");
       template.save(COLLECTION, entity);
 
-      assertThat(timerFor("save")).isNotNull();
-      assertThat(timerFor("save").count()).isEqualTo(1);
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "save")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
 
     @Test
-    void saveResultPassesThroughTimerWrapper() throws Exception {
+    void saveResultPassesThroughObservationWrapper() throws Exception {
       var entity = doc("42");
       var result = template.save(COLLECTION, entity);
 
@@ -212,7 +220,7 @@ class MicrometerSolrTemplateTest {
     }
 
     @Test
-    void saveExceptionPropagatesThroughTimerWrapper() throws Exception {
+    void saveExceptionPropagatesThroughObservationWrapper() throws Exception {
       when(solrClient.add(eq(COLLECTION), any(org.apache.solr.common.SolrInputDocument.class)))
           .thenThrow(new SolrServerException("boom"));
 
@@ -220,24 +228,27 @@ class MicrometerSolrTemplateTest {
           .isInstanceOf(SolrException.class)
           .hasCauseInstanceOf(SolrServerException.class);
 
-      assertThat(timerFor("save")).isNotNull();
+      thenObservation().hasObservationWithNameEqualTo("solr.operation");
     }
   }
 
   @Nested
-  class SaveAllTimerRegistration {
+  class SaveAllObservation {
 
     @Test
-    void registersTimerAfterSaveAllOperation() throws Exception {
+    void createsObservationAfterSaveAllOperation() throws Exception {
       var entities = List.of(doc("1"), doc("2"));
       template.saveAll(COLLECTION, entities);
 
-      assertThat(timerFor("saveAll")).isNotNull();
-      assertThat(timerFor("saveAll").count()).isEqualTo(1);
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "saveAll")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
 
     @Test
-    void saveAllResultPassesThroughTimerWrapper() throws Exception {
+    void saveAllResultPassesThroughObservationWrapper() throws Exception {
       var entities = List.of(doc("a"), doc("b"));
       var result = template.saveAll(COLLECTION, entities);
 
@@ -246,51 +257,56 @@ class MicrometerSolrTemplateTest {
   }
 
   @Nested
-  class DeleteByIdTimerRegistration {
+  class DeleteByIdObservation {
 
     @Test
-    void registersTimerAfterDeleteByIdOperation() throws Exception {
+    void createsObservationAfterDeleteByIdOperation() throws Exception {
       template.deleteById(COLLECTION, "5");
 
-      assertThat(timerFor("deleteById")).isNotNull();
-      assertThat(timerFor("deleteById").count()).isEqualTo(1);
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "deleteById")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
 
     @Test
-    void deleteByIdExceptionPropagatesThroughTimerWrapper() throws Exception {
+    void deleteByIdExceptionPropagatesThroughObservationWrapper() throws Exception {
       when(solrClient.deleteById(COLLECTION, "5")).thenThrow(new IOException("net error"));
 
       assertThatThrownBy(() -> template.deleteById(COLLECTION, "5"))
           .isInstanceOf(SolrException.class)
           .hasCauseInstanceOf(IOException.class);
 
-      assertThat(timerFor("deleteById")).isNotNull();
+      thenObservation().hasObservationWithNameEqualTo("solr.operation");
     }
   }
 
   @Nested
-  class DeleteByQueryTimerRegistration {
+  class DeleteByQueryObservation {
 
     @Test
-    void registersTimerAfterDeleteByQueryOperation() throws Exception {
+    void createsObservationAfterDeleteByQueryOperation() throws Exception {
       template.deleteByQuery(COLLECTION, "status:inactive");
 
-      assertThat(timerFor("deleteByQuery")).isNotNull();
-      assertThat(timerFor("deleteByQuery").count()).isEqualTo(1);
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "deleteByQuery")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
   }
 
   @Nested
-  class QueryForHighlightPageTimerRegistration {
+  class QueryForHighlightPageObservation {
 
     @Test
-    void registersTimerAfterQueryForHighlightPageOperation() throws Exception {
+    void createsObservationAfterQueryForHighlightPageOperation() throws Exception {
       var solrDoc = new SolrDocument();
       solrDoc.setField("id", "1");
       var results = new SolrDocumentList();
       results.add(solrDoc);
       results.setNumFound(1L);
-
       var response = mock(QueryResponse.class);
       when(response.getResults()).thenReturn(results);
       when(response.getHighlighting()).thenReturn(Map.of());
@@ -298,19 +314,21 @@ class MicrometerSolrTemplateTest {
 
       template.queryForHighlightPage(COLLECTION, new SimpleQuery(Criteria.where("*").is("*")), TestDoc.class);
 
-      assertThat(timerFor("queryForHighlightPage")).isNotNull();
-      assertThat(timerFor("queryForHighlightPage").count()).isEqualTo(1);
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "queryForHighlightPage")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
   }
 
   @Nested
-  class QueryForFacetPageTimerRegistration {
+  class QueryForFacetPageObservation {
 
     @Test
-    void registersTimerAfterQueryForFacetPageOperation() throws Exception {
+    void createsObservationAfterQueryForFacetPageOperation() throws Exception {
       var results = new SolrDocumentList();
       results.setNumFound(0L);
-
       var response = mock(QueryResponse.class);
       when(response.getResults()).thenReturn(results);
       when(response.getFacetFields()).thenReturn(List.of());
@@ -319,25 +337,31 @@ class MicrometerSolrTemplateTest {
 
       template.queryForFacetPage(COLLECTION, new SimpleQuery(Criteria.where("*").is("*")), TestDoc.class);
 
-      assertThat(timerFor("queryForFacetPage")).isNotNull();
-      assertThat(timerFor("queryForFacetPage").count()).isEqualTo(1);
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "queryForFacetPage")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
   }
 
   @Nested
-  class SavePartialUpdateTimerRegistration {
+  class SavePartialUpdateObservation {
 
     @Test
-    void registersTimerAfterSavePartialUpdateOperation() throws Exception {
+    void createsObservationAfterSavePartialUpdateOperation() throws Exception {
       var update = new PartialUpdate("1").set("title", "New Title");
       template.savePartialUpdate(COLLECTION, update);
 
-      assertThat(timerFor("partial-update")).isNotNull();
-      assertThat(timerFor("partial-update").count()).isEqualTo(1);
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "partial-update")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
 
     @Test
-    void savePartialUpdateExceptionPropagatesThroughTimerWrapper() throws Exception {
+    void savePartialUpdateExceptionPropagatesThroughObservationWrapper() throws Exception {
       when(solrClient.add(eq(COLLECTION), any(org.apache.solr.common.SolrInputDocument.class)))
           .thenThrow(new IOException("disk full"));
       var update = new PartialUpdate("1").set("title", "Fail");
@@ -346,61 +370,67 @@ class MicrometerSolrTemplateTest {
           .isInstanceOf(SolrException.class)
           .hasCauseInstanceOf(IOException.class);
 
-      assertThat(timerFor("partial-update")).isNotNull();
+      thenObservation().hasObservationWithNameEqualTo("solr.operation");
     }
   }
 
   @Nested
-  class CommitTimerRegistration {
+  class CommitObservation {
 
     @Test
-    void registersTimerAfterCommitOperation() throws Exception {
+    void createsObservationAfterCommitOperation() throws Exception {
       template.commit(COLLECTION);
 
-      assertThat(timerFor("commit")).isNotNull();
-      assertThat(timerFor("commit").count()).isEqualTo(1);
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "commit")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
 
     @Test
-    void commitExceptionPropagatesThroughTimerWrapper() throws Exception {
+    void commitExceptionPropagatesThroughObservationWrapper() throws Exception {
       when(solrClient.commit(COLLECTION)).thenThrow(new IOException("network"));
 
       assertThatThrownBy(() -> template.commit(COLLECTION))
           .isInstanceOf(SolrException.class)
           .hasCauseInstanceOf(IOException.class);
 
-      assertThat(timerFor("commit")).isNotNull();
+      thenObservation().hasObservationWithNameEqualTo("solr.operation");
     }
   }
 
   @Nested
-  class SoftCommitTimerRegistration {
+  class SoftCommitObservation {
 
     @Test
-    void registersTimerAfterSoftCommitOperation() throws Exception {
+    void createsObservationAfterSoftCommitOperation() throws Exception {
       template.softCommit(COLLECTION);
 
-      assertThat(timerFor("soft-commit")).isNotNull();
-      assertThat(timerFor("soft-commit").count()).isEqualTo(1);
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "soft-commit")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
 
     @Test
-    void softCommitExceptionPropagatesThroughTimerWrapper() throws Exception {
+    void softCommitExceptionPropagatesThroughObservationWrapper() throws Exception {
       when(solrClient.commit(COLLECTION, true, true, true)).thenThrow(new IOException("timeout"));
 
       assertThatThrownBy(() -> template.softCommit(COLLECTION))
           .isInstanceOf(SolrException.class)
           .hasCauseInstanceOf(IOException.class);
 
-      assertThat(timerFor("soft-commit")).isNotNull();
+      thenObservation().hasObservationWithNameEqualTo("solr.operation");
     }
   }
 
   @Nested
-  class QueryWithCursorTimerRegistration {
+  class QueryWithCursorObservation {
 
     @Test
-    void registersTimerAfterQueryWithCursorOperation() throws Exception {
+    void createsObservationAfterQueryWithCursorOperation() throws Exception {
       var results = new SolrDocumentList();
       results.setNumFound(0L);
       var response = mock(QueryResponse.class);
@@ -412,12 +442,15 @@ class MicrometerSolrTemplateTest {
       query.setCursorMark("*");
       template.queryWithCursor(COLLECTION, query, TestDoc.class);
 
-      assertThat(timerFor("cursor-query")).isNotNull();
-      assertThat(timerFor("cursor-query").count()).isEqualTo(1);
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "cursor-query")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
 
     @Test
-    void queryWithCursorResultPassesThroughTimerWrapper() throws Exception {
+    void queryWithCursorResultPassesThroughObservationWrapper() throws Exception {
       var solrDoc = new SolrDocument();
       solrDoc.setField("id", "42");
       var results = new SolrDocumentList();
@@ -438,10 +471,10 @@ class MicrometerSolrTemplateTest {
   }
 
   @Nested
-  class TimerTagsVerification {
+  class ObservationTagsVerification {
 
     @Test
-    void timerHasCorrectOperationAndCollectionTags() throws Exception {
+    void observationHasCorrectOperationAndCollectionTags() throws Exception {
       var solrQuery = new SolrQuery("*:*");
       var response = mock(QueryResponse.class);
       when(response.getResults()).thenReturn(new SolrDocumentList());
@@ -449,39 +482,26 @@ class MicrometerSolrTemplateTest {
 
       template.query(COLLECTION, solrQuery, TestDoc.class);
 
-      var timer = meterRegistry.find("solr.operations")
-          .tag("operation", "query")
-          .tag("collection", COLLECTION)
-          .timer();
-
-      assertThat(timer).isNotNull();
+      thenObservation()
+          .hasObservationWithNameEqualTo("solr.operation")
+          .that()
+          .hasLowCardinalityKeyValue("operation", "query")
+          .hasLowCardinalityKeyValue("collection", COLLECTION);
     }
 
     @Test
-    void differentCollectionsProduceSeparateTimers() throws Exception {
-      var solrQuery1 = new SolrQuery("*:*");
-      var solrQuery2 = new SolrQuery("*:*");
-
+    void differentCollectionsProduceSeparateObservations() throws Exception {
       var response = mock(QueryResponse.class);
       when(response.getResults()).thenReturn(new SolrDocumentList());
       when(solrClient.query(any(String.class), any(SolrParams.class))).thenReturn(response);
 
-      template.query("books", solrQuery1, TestDoc.class);
-      template.query("authors", solrQuery2, TestDoc.class);
+      template.query("books", new SolrQuery("*:*"), TestDoc.class);
+      template.query("authors", new SolrQuery("*:*"), TestDoc.class);
 
-      var booksTimer = meterRegistry.find("solr.operations")
-          .tag("operation", "query")
-          .tag("collection", "books")
-          .timer();
-      var authorsTimer = meterRegistry.find("solr.operations")
-          .tag("operation", "query")
-          .tag("collection", "authors")
-          .timer();
-
-      assertThat(booksTimer).isNotNull();
-      assertThat(authorsTimer).isNotNull();
-      assertThat(booksTimer.count()).isEqualTo(1);
-      assertThat(authorsTimer.count()).isEqualTo(1);
+      thenObservation()
+          .hasNumberOfObservationsEqualTo(2)
+          .hasAnObservationWithAKeyValue("collection", "books")
+          .hasAnObservationWithAKeyValue("collection", "authors");
     }
   }
 }
