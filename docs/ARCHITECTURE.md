@@ -1,6 +1,6 @@
 # Architecture Diagrams
 
-Visual reference for how `spring-data-solr-lazarus` integrates with Spring Boot's
+Visual reference for how `spring-data-solr` integrates with Spring Boot's
 auto-configuration, Actuator, and Spring Data infrastructure. All diagrams are
 Mermaid — render them in GitHub, IntelliJ, or any Markdown viewer with Mermaid
 support.
@@ -128,7 +128,7 @@ flowchart LR
     PTree["PartTree<br/>method parsing"]
   end
 
-  subgraph Lib["spring-data-solr-lazarus"]
+  subgraph Lib["spring-data-solr"]
     direction TB
     Props["SolrProperties"]
     AutoCfg["3 @AutoConfiguration<br/>classes"]

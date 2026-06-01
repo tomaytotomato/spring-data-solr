@@ -173,7 +173,7 @@ CRUD endpoints and Actuator health at `/actuator/health`.
 ## Contributing and Issues
 
 Any bugs found, improvements spotted, or features worth adding should be logged as a GitHub issue
-at https://github.com/tomaytotomato/spring-data-solr-lazarus/issues before any code is written.
+at https://github.com/tomaytotomato/spring-data-solr/issues before any code is written.
 Use the issue templates — bug reports and feature requests are both covered. See `CONTRIBUTING.md`
 for the full workflow including branch naming and PR checklist.
 

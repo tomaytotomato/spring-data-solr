@@ -14,7 +14,7 @@ labels: bug
 
 
 **Versions**
-- spring-data-solr-lazarus:
+- spring-data-solr:
 - Spring Boot:
 - Solr:
 - Java:

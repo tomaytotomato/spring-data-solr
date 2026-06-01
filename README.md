@@ -2,7 +2,7 @@
 
 # Spring Data Solr - Lazarus
 
-[![CI](https://github.com/tomaytotomato/spring-data-solr-lazarus/actions/workflows/ci.yml/badge.svg)](https://github.com/tomaytotomato/spring-data-solr-lazarus/actions/workflows/ci.yml)
+[![CI](https://github.com/tomaytotomato/spring-data-solr/actions/workflows/ci.yml/badge.svg)](https://github.com/tomaytotomato/spring-data-solr/actions/workflows/ci.yml)
 ![Java](https://img.shields.io/badge/Java-21%2B-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.6-brightgreen)
 ![Solr](https://img.shields.io/badge/Solr-9%20%7C%2010-blue)
