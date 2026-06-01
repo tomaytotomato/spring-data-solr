@@ -5,9 +5,12 @@ repository.
 
 ## Project Overview
 
-Spring Data Solr Lazarus — a modern Spring Boot starter for Apache Solr 10, resurrecting the
-archived `spring-data-solr` project. Personal project (not giffgaff). Compiles to JDK 21 (baseline),
-CI tests on JDK 21 and 25. Spring Boot 4.0.6.
+Spring Data Solr — a modern Spring Boot starter for Apache Solr 10, resurrecting the archived
+`spring-data-solr` project. Personal project (not giffgaff). Compiles to JDK 21 (baseline), CI
+tests on JDK 21 and 25. Spring Boot 4.0.6.
+
+> The GitHub repository was renamed from `spring-data-solr-lazarus` to `spring-data-solr` on
+> 2026-06-01. A broader rename (issue #28) to drop "Lazarus" from the project identity is open.
 
 ## Build Commands
 
@@ -74,13 +77,15 @@ CRUD, query execution, partial updates, and commit mode control (`NONE` or `IMME
 Two levels:
 
 - **`Criteria`** — fluent builder for individual Solr field predicates, chained with `.and(field)` /
-  `.or(field)`. Renders to a Solr query string.
+  `.or(field)`. Renders to a Solr query string. Use `Criteria.matchAll()` for `*:*` — do not use
+  the coincidental `Criteria.where("*").expression("*")` pattern.
 - **`SimpleQuery`** — wraps Criteria with pagination, sort, filter queries, projections, defType.
   Converts to SolrJ `SolrQuery` via `toSolrQuery()`.
 
 ### Spring Data Repository
 
-`SolrRepository<T, ID>` extends `PagingAndSortingRepository` + `CrudRepository`. Implemented by
+`SolrRepository<T>` extends `PagingAndSortingRepository<T, String>` + `CrudRepository<T, String>`.
+Solr IDs are always `String` — the `ID` type parameter was removed in PR #59. Implemented by
 `SimpleSolrRepository` which delegates to `SolrTemplate`.
 
 Derived query methods work through the Spring Data PartTree mechanism:
@@ -104,6 +109,10 @@ Entity classes use `@SolrDocument(collection = "name")` for collection resolutio
 `@Field` for field binding. `SolrDocumentResolver` derives collection name from the annotation (
 falls back to lowercase class name). `SolrFieldNameResolver` caches `@Field` annotation mappings
 per entity class. `@Score` maps Solr's relevance score to an entity field.
+
+> **Import collision:** `@SolrDocument` is `com.tomaytotomato.data.solr.mapping.SolrDocument`, not
+> `org.apache.solr.common.SolrDocument`. IDEs will offer both — always pick the library's own.
+> Renaming this annotation is tracked in issue #47.
 
 ### Highlighting
 
@@ -177,6 +186,10 @@ at https://github.com/tomaytotomato/spring-data-solr/issues before any code is w
 Use the issue templates — bug reports and feature requests are both covered. See `CONTRIBUTING.md`
 for the full workflow including branch naming and PR checklist.
 
+When raising a PR, use the `/raise-pr` skill — it generates the description and automatically
+includes `Closes #N` so GitHub closes the linked issue on merge. Skipping this means manual
+issue-close is required.
+
 ## Claude Code Configuration
 
 The `.claude/` directory contains project-level configuration:
@@ -193,5 +206,8 @@ freshness, gh auth guard) apply automatically from `~/.claude/settings.json`.
 
 ## Dev Log
 
-`DEVLOG.md` tracks dated development sessions with architecture decisions, gotchas discovered, and
-test counts. Update it after significant sessions — use the `devlog` skill.
+Two files exist:
+- **`DEVLOG.md`** (root) — active journal, Day 1 onwards (from 2026-06-01). Update this one.
+- **`docs/DEVLOG.md`** — historical record of Days 1–4 from the original `docs/` layout (pre-2026-06-01).
+
+Update `DEVLOG.md` after significant sessions — use the `devlog` skill, don't edit manually.
