@@ -30,6 +30,28 @@ import org.apache.solr.common.util.NamedList;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Pageable;
 
+/**
+ * Primary implementation of {@link SolrOperations}.
+ *
+ * <p>Wraps a SolrJ {@link SolrClient} with collection-aware CRUD, paged and highlighted query
+ * execution, faceting, cursor-based deep pagination, streaming expressions, and explicit commit
+ * control. Document mapping is handled by {@link SolrDocumentReader} and {@link SolrDocumentWriter};
+ * collection names are resolved from {@link com.tomaytotomato.data.solr.mapping.SolrDocument}
+ * annotations via {@link SolrDocumentResolver}.
+ *
+ * <p>Commit behaviour is controlled by the {@link CommitMode} supplied at construction:
+ * <ul>
+ *   <li>{@link CommitMode#NONE} — no automatic commits; the caller is responsible for
+ *       committing.</li>
+ *   <li>{@link CommitMode#IMMEDIATE} — a hard commit is issued automatically after every
+ *       write operation.</li>
+ * </ul>
+ *
+ * <p>This class is registered as a Spring bean by {@code SolrAutoConfiguration} and is the
+ * default delegate used by {@link com.tomaytotomato.data.solr.repository.SimpleSolrRepository}.
+ *
+ * @since 0.1.0
+ */
 public class SolrTemplate implements SolrOperations {
 
   private final SolrClient solrClient;
@@ -38,14 +60,36 @@ public class SolrTemplate implements SolrOperations {
   private final Map<Class<?>, SolrDocumentReader<?>> readerCache = new ConcurrentHashMap<>();
   private final SolrDocumentWriter<?> sharedWriter = new SolrDocumentWriter<>();
 
+  /**
+   * Creates a new {@link SolrTemplate} with {@link CommitMode#NONE} and no environment.
+   *
+   * @param solrClient the SolrJ client to delegate to
+   */
   public SolrTemplate(SolrClient solrClient) {
     this(solrClient, CommitMode.NONE, null);
   }
 
+  /**
+   * Creates a new {@link SolrTemplate} with the specified commit mode and no environment.
+   *
+   * @param solrClient the SolrJ client to delegate to
+   * @param commitMode controls whether writes are automatically committed
+   */
   public SolrTemplate(SolrClient solrClient, CommitMode commitMode) {
     this(solrClient, commitMode, null);
   }
 
+  /**
+   * Creates a new {@link SolrTemplate} with the specified commit mode and Spring
+   * {@link Environment}.
+   *
+   * <p>The environment is used by collection-name resolution when a property placeholder
+   * appears in a {@link com.tomaytotomato.data.solr.mapping.SolrDocument#collection()} value.
+   *
+   * @param solrClient the SolrJ client to delegate to
+   * @param commitMode controls whether writes are automatically committed
+   * @param environment the Spring environment for property resolution; may be {@code null}
+   */
   public SolrTemplate(SolrClient solrClient, CommitMode commitMode, Environment environment) {
     this.solrClient = solrClient;
     this.commitMode = commitMode;
