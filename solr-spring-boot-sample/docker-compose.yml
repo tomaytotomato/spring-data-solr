@@ -1,12 +1,9 @@
 services:
   solr:
-    image: solr:10.0
+    build: ./solr-config
     ports:
       - "8983:8983"
     command: solr-precreate books
-    volumes:
-      - solr_data:/var/solr
-      - ./solr-config/managed-schema.xml:/opt/solr/server/solr/configsets/_default/conf/managed-schema.xml
 
 volumes:
   solr_data:

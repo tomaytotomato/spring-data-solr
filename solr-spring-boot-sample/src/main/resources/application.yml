@@ -3,12 +3,10 @@ spring:
     name: solr-sample
   docker:
     compose:
-      lifecycle-management: start-and-stop
-      readiness:
-        wait: always
+      enabled: false
   solr:
     standalone:
-      host: http://localhost:8983/solr
+      host: ${SPRING_SOLR_STANDALONE_HOST:http://localhost:8983/solr}
       default-collection: books
     commit-mode: immediate
 
@@ -20,3 +18,15 @@ management:
   health:
     solr:
       enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  docker:
+    compose:
+      enabled: true
+      lifecycle-management: start-and-stop
+      readiness:
+        wait: always
