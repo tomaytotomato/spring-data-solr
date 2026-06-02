@@ -1,6 +1,6 @@
 package com.tomaytotomato.data.solr.repository;
 
-import com.tomaytotomato.data.solr.mapping.SolrDocument;
+import com.tomaytotomato.data.solr.mapping.SolrEntity;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +28,7 @@ public class SolrRepositoryConfigurationExtension extends RepositoryConfiguratio
 
   @Override
   protected Collection<Class<? extends Annotation>> getIdentifyingAnnotations() {
-    return Collections.singleton(SolrDocument.class);
+    return Collections.singleton(SolrEntity.class);
   }
 
   @Override

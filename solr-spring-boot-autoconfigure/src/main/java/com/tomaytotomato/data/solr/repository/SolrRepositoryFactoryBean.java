@@ -30,7 +30,7 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID>
 
   /**
    * Injects the {@link SolrDocumentResolver} bean so that {@code ${placeholder}} values in
-   * {@link com.tomaytotomato.data.solr.mapping.SolrDocument#collection()} are expanded against
+   * {@link com.tomaytotomato.data.solr.mapping.SolrEntity#collection()} are expanded against
    * the Spring {@link org.springframework.core.env.Environment} throughout the repository layer.
    * Wired automatically by {@link SolrRepositoryConfigurationExtension}.
    */

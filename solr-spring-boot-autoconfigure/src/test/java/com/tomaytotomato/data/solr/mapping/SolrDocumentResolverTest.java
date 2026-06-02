@@ -9,13 +9,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SolrDocumentResolverTest {
 
-  @SolrDocument(collection = "books")
+  @SolrEntity(collection = "books")
   static class BookWithExplicitCollection {}
 
-  @SolrDocument
+  @SolrEntity
   static class ProductWithNoCollection {}
 
-  @SolrDocument(collection = "${solr.books.collection}")
+  @SolrEntity(collection = "${solr.books.collection}")
   static class BookWithPlaceholderCollection {}
 
   static class NotAnnotated {}

@@ -7,7 +7,7 @@ import ch.qos.logback.core.read.ListAppender;
 import com.tomaytotomato.data.solr.HighlightPage;
 import com.tomaytotomato.data.solr.SolrPage;
 import com.tomaytotomato.data.solr.SolrTemplate;
-import com.tomaytotomato.data.solr.mapping.SolrDocument;
+import com.tomaytotomato.data.solr.mapping.SolrEntity;
 import com.tomaytotomato.data.solr.query.SimpleQuery;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -39,7 +39,7 @@ class PartTreeSolrQueryTest {
   @Mock
   private SolrTemplate solrTemplate;
 
-  @SolrDocument(collection = "products")
+  @SolrEntity(collection = "products")
   static class Product {
     String id;
     String title;

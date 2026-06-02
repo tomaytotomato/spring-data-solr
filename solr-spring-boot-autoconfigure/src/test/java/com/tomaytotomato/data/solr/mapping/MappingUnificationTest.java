@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
  */
 class MappingUnificationTest {
 
-  @SolrDocument(collection = "articles")
+  @SolrEntity(collection = "articles")
   static class ArticleEntity {
 
     @Field("article_id")

@@ -70,7 +70,7 @@ Three `@AutoConfiguration` classes registered in
 
 `SolrOperations` (interface) → `SolrTemplate` (implementation). Wraps SolrJ with collection-aware
 CRUD, query execution, partial updates, and commit mode control (`NONE` or `IMMEDIATE`). Uses
-`SolrDocumentResolver` to derive collection names from `@SolrDocument` annotations.
+`SolrDocumentResolver` to derive collection names from `@SolrEntity` annotations.
 
 ### Query System
 
@@ -105,14 +105,10 @@ PartTree and execute raw Solr query strings with positional parameter substituti
 
 ### Document Mapping
 
-Entity classes use `@SolrDocument(collection = "name")` for collection resolution and SolrJ's
+Entity classes use `@SolrEntity(collection = "name")` for collection resolution and SolrJ's
 `@Field` for field binding. `SolrDocumentResolver` derives collection name from the annotation (
 falls back to lowercase class name). `SolrFieldNameResolver` caches `@Field` annotation mappings
 per entity class. `@Score` maps Solr's relevance score to an entity field.
-
-> **Import collision:** `@SolrDocument` is `com.tomaytotomato.data.solr.mapping.SolrDocument`, not
-> `org.apache.solr.common.SolrDocument`. IDEs will offer both — always pick the library's own.
-> Renaming this annotation is tracked in issue #47.
 
 ### Highlighting
 

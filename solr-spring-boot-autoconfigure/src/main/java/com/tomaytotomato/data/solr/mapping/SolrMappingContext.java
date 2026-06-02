@@ -12,7 +12,7 @@ import org.springframework.lang.Nullable;
  * Apache Solr.
  *
  * <p>Manages {@link SolrPersistentEntity} and {@link SolrPersistentProperty} instances for all
- * domain types annotated with {@link SolrDocument}. Only types carrying that annotation are
+ * domain types annotated with {@link SolrEntity}. Only types carrying that annotation are
  * considered for entity creation; all others are skipped.
  *
  * <p>When constructed with an {@link Environment}, any {@code ${placeholder}} expression in a
@@ -74,13 +74,13 @@ public class SolrMappingContext extends AbstractMappingContext<SolrPersistentEnt
   }
 
   /**
-   * Returns {@code true} only for types annotated with {@link SolrDocument}.
+   * Returns {@code true} only for types annotated with {@link SolrEntity}.
    *
    * @param type the type to evaluate
-   * @return {@code true} if the type carries a {@link SolrDocument} annotation
+   * @return {@code true} if the type carries a {@link SolrEntity} annotation
    */
   @Override
   protected boolean shouldCreatePersistentEntityFor(TypeInformation<?> type) {
-    return type.getType().isAnnotationPresent(SolrDocument.class);
+    return type.getType().isAnnotationPresent(SolrEntity.class);
   }
 }

@@ -149,7 +149,7 @@ Define a repository:
 
 ```java
 
-@SolrDocument(collection = "books")
+@SolrEntity(collection = "books")
 public class Book {
 
   @Field

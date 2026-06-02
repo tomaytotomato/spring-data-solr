@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class SolrMappingContextTest {
 
-  @SolrDocument(collection = "books")
+  @SolrEntity(collection = "books")
   static class Book {
     @Id
     String id;
@@ -22,7 +22,7 @@ class SolrMappingContextTest {
     String author;
   }
 
-  @SolrDocument(collection = "products")
+  @SolrEntity(collection = "products")
   static class ProductWithLegacyId {
     @Field("id")
     String productId;
@@ -30,13 +30,13 @@ class SolrMappingContextTest {
     String name;
   }
 
-  @SolrDocument
+  @SolrEntity
   static class Order {
     @Id
     String id;
   }
 
-  @SolrDocument(collection = "${test.collection}")
+  @SolrEntity(collection = "${test.collection}")
   static class PlaceholderDocument {
     @Id
     String id;

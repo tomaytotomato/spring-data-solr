@@ -38,7 +38,7 @@ import org.springframework.data.domain.Pageable;
  * <p>Wraps a SolrJ {@link SolrClient} with collection-aware CRUD, paged and highlighted query
  * execution, faceting, cursor-based deep pagination, streaming expressions, and explicit commit
  * control. Document mapping is handled by {@link SolrDocumentReader} and {@link SolrDocumentWriter};
- * collection names are resolved from {@link com.tomaytotomato.data.solr.mapping.SolrDocument}
+ * collection names are resolved from {@link com.tomaytotomato.data.solr.mapping.SolrEntity}
  * annotations via {@link SolrDocumentResolver}.
  *
  * <p>Commit behaviour is controlled by the {@link CommitMode} supplied at construction:
@@ -87,8 +87,11 @@ public class SolrTemplate implements SolrOperations {
    * Creates a new {@link SolrTemplate} with the specified commit mode and Spring
    * {@link Environment}.
    *
-   * @param solrClient  the SolrJ client to delegate to
-   * @param commitMode  controls whether writes are automatically committed
+   * <p>The environment is used by collection-name resolution when a property placeholder
+   * appears in a {@link com.tomaytotomato.data.solr.mapping.SolrEntity#collection()} value.
+   *
+   * @param solrClient the SolrJ client to delegate to
+   * @param commitMode controls whether writes are automatically committed
    * @param environment the Spring environment for property resolution; may be {@code null}
    */
   public SolrTemplate(SolrClient solrClient, CommitMode commitMode, Environment environment) {

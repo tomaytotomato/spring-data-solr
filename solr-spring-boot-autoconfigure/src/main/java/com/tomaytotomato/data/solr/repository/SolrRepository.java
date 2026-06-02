@@ -16,7 +16,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * but produce an unchecked cast and incorrect runtime behaviour.
  *
  * <p>Declare a concrete sub-interface for each domain type and annotate the domain class with
- * {@link com.tomaytotomato.data.solr.mapping.SolrDocument} to specify the target collection:
+ * {@link com.tomaytotomato.data.solr.mapping.SolrEntity} to specify the target collection:
  * <pre>{@code
  * public interface BookRepository extends SolrRepository<Book> {}
  * }</pre>

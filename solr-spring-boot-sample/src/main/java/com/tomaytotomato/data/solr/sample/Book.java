@@ -1,11 +1,11 @@
 package com.tomaytotomato.data.solr.sample;
 
 import com.tomaytotomato.data.solr.mapping.Score;
-import com.tomaytotomato.data.solr.mapping.SolrDocument;
+import com.tomaytotomato.data.solr.mapping.SolrEntity;
 import java.util.List;
 import org.apache.solr.client.solrj.beans.Field;
 
-@SolrDocument(collection = "books")
+@SolrEntity(collection = "books")
 public class Book {
 
   @Field

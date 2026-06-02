@@ -1,7 +1,7 @@
 package com.tomaytotomato.data.solr.repository;
 
 import com.tomaytotomato.data.solr.SolrTemplate;
-import com.tomaytotomato.data.solr.mapping.SolrDocument;
+import com.tomaytotomato.data.solr.mapping.SolrEntity;
 import com.tomaytotomato.data.solr.mapping.SolrDocumentResolver;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Verifies that {@code ${placeholder}} values in {@link SolrDocument#collection()} are resolved
+ * Verifies that {@code ${placeholder}} values in {@link SolrEntity#collection()} are resolved
  * against a Spring {@link org.springframework.core.env.Environment} throughout the repository
  * layer — specifically via {@link SolrEntityInformation}, {@link PartTreeSolrQuery},
  * {@link StringBasedSolrQuery}, and {@link SimpleSolrRepository}.
@@ -40,7 +40,7 @@ class PlaceholderCollectionResolutionTest {
   @Mock
   private SolrTemplate solrTemplate;
 
-  @SolrDocument(collection = "${solr.article.collection}")
+  @SolrEntity(collection = "${solr.article.collection}")
   static class Article {
     @Field
     String id;
