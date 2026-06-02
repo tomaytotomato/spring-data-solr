@@ -1,6 +1,7 @@
 package com.tomaytotomato.data.solr.repository;
 
 import com.tomaytotomato.data.solr.mapping.SolrDocumentResolver;
+import com.tomaytotomato.data.solr.mapping.SolrPersistentProperty;
 import org.springframework.data.repository.core.EntityInformation;
 
 public class SolrEntityInformation<T> implements EntityInformation<T, String> {
@@ -45,7 +46,7 @@ public class SolrEntityInformation<T> implements EntityInformation<T, String> {
         continue;
       }
       var annotationValue = annotation.value();
-      boolean isDefaultValue = annotationValue.isEmpty() || "#default".equals(annotationValue);
+      boolean isDefaultValue = annotationValue.isEmpty() || SolrPersistentProperty.FIELD_DEFAULT_SENTINEL.equals(annotationValue);
       if (isDefaultValue && "id".equals(field.getName())) {
         field.setAccessible(true);
         return field;

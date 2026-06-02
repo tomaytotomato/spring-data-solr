@@ -46,13 +46,17 @@ public class SolrRepositoryConfigurationExtension extends RepositoryConfiguratio
   /** Bean name for the {@link com.tomaytotomato.data.solr.mapping.SolrDocumentResolver}. */
   private static final String SOLR_DOCUMENT_RESOLVER_BEAN_NAME = "solrDocumentResolver";
 
+  private static final String SOLR_MAPPING_CONTEXT_BEAN_NAME = "solrMappingContext";
+
+  private static final String DEFAULT_SOLR_TEMPLATE_BEAN_NAME = "solrTemplate";
+
   @Override
   public void postProcess(BeanDefinitionBuilder builder, RepositoryConfigurationSource source) {
     var templateRef = source.getAttribute("solrTemplateRef")
         .filter(s -> !s.isBlank())
-        .orElse("solrTemplate");
+        .orElse(DEFAULT_SOLR_TEMPLATE_BEAN_NAME);
     builder.addPropertyReference("solrTemplate", templateRef);
-    builder.addPropertyReference("mappingContext", "solrMappingContext");
+    builder.addPropertyReference("mappingContext", SOLR_MAPPING_CONTEXT_BEAN_NAME);
     builder.addPropertyReference("solrProperties", SOLR_PROPERTIES_BEAN_NAME);
     builder.addPropertyReference("documentResolver", SOLR_DOCUMENT_RESOLVER_BEAN_NAME);
   }
@@ -61,7 +65,7 @@ public class SolrRepositoryConfigurationExtension extends RepositoryConfiguratio
   public void postProcess(BeanDefinitionBuilder builder, AnnotationRepositoryConfigurationSource config) {
     var attributes = config.getAttributes();
     builder.addPropertyReference("solrTemplate", attributes.getString("solrTemplateRef"));
-    builder.addPropertyReference("mappingContext", "solrMappingContext");
+    builder.addPropertyReference("mappingContext", SOLR_MAPPING_CONTEXT_BEAN_NAME);
     builder.addPropertyReference("solrProperties", SOLR_PROPERTIES_BEAN_NAME);
     builder.addPropertyReference("documentResolver", SOLR_DOCUMENT_RESOLVER_BEAN_NAME);
   }

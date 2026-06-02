@@ -43,7 +43,7 @@ public class SolrAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(SolrClient.class)
-  public SolrClient solrClient(SolrProperties properties) {
+  SolrClient solrClient(SolrProperties properties) {
     if (properties.getCloud() != null && properties.getStandalone() != null) {
       throw new IllegalStateException(
           "Ambiguous Solr configuration: both 'spring.solr.standalone' and 'spring.solr.cloud' are set. Remove one.");
@@ -96,13 +96,13 @@ public class SolrAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  public SolrDocumentResolver solrDocumentResolver(Environment environment) {
+  SolrDocumentResolver solrDocumentResolver(Environment environment) {
     return new SolrDocumentResolver(environment);
   }
 
   @Bean
   @ConditionalOnMissingBean
-  public SolrTemplate solrTemplate(SolrClient solrClient, SolrProperties properties,
+  SolrTemplate solrTemplate(SolrClient solrClient, SolrProperties properties,
       Environment environment, SolrMappingContext mappingContext,
       SolrMappingConverter mappingConverter) {
     return new SolrTemplate(solrClient, properties.getCommitMode(), environment, mappingContext,
@@ -111,19 +111,19 @@ public class SolrAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  public SolrMappingContext solrMappingContext(Environment environment) {
+  SolrMappingContext solrMappingContext(Environment environment) {
     return new SolrMappingContext(environment);
   }
 
   @Bean
   @ConditionalOnMissingBean
-  public SolrCustomConversions solrCustomConversions() {
+  SolrCustomConversions solrCustomConversions() {
     return SolrCustomConversions.empty();
   }
 
   @Bean
   @ConditionalOnMissingBean
-  public SolrMappingConverter solrMappingConverter(SolrCustomConversions conversions) {
+  SolrMappingConverter solrMappingConverter(SolrCustomConversions conversions) {
     return new SolrMappingConverter(conversions);
   }
 }

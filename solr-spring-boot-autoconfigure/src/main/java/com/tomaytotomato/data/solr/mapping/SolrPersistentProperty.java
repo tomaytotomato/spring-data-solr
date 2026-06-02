@@ -26,6 +26,13 @@ import org.springframework.data.mapping.model.SimpleTypeHolder;
 public class SolrPersistentProperty extends AnnotationBasedPersistentProperty<SolrPersistentProperty> {
 
   /**
+   * The sentinel value used by SolrJ's {@link Field} annotation to indicate that the Java field
+   * name should be used as the Solr field name. Shared across the mapping and repository layers
+   * to avoid duplicating the string literal.
+   */
+  public static final String FIELD_DEFAULT_SENTINEL = "#default";
+
+  /**
    * Creates a new {@link SolrPersistentProperty}.
    *
    * @param property the property descriptor
@@ -49,7 +56,7 @@ public class SolrPersistentProperty extends AnnotationBasedPersistentProperty<So
     var annotation = findAnnotation(Field.class);
     if (annotation != null) {
       var value = annotation.value();
-      if (!value.isEmpty() && !"#default".equals(value)) {
+      if (!value.isEmpty() && !FIELD_DEFAULT_SENTINEL.equals(value)) {
         return value;
       }
     }

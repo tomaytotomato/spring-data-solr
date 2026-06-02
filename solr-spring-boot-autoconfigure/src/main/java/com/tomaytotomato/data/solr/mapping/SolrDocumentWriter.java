@@ -105,7 +105,7 @@ public class SolrDocumentWriter<T> implements SolrDocumentConverter<T, SolrInput
   private static String solrFieldNameFromAnnotation(Field field) {
     var annotation = field.getAnnotation(org.apache.solr.client.solrj.beans.Field.class);
     var value = annotation.value();
-    if (value.isEmpty() || "#default".equals(value)) {
+    if (value.isEmpty() || SolrPersistentProperty.FIELD_DEFAULT_SENTINEL.equals(value)) {
       return field.getName();
     }
     return value;
