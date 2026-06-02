@@ -53,31 +53,11 @@ Both images are published to GHCR on every push to `master`:
 | `ghcr.io/tomaytotomato/spring-data-solr-sample:latest` | Spring Boot app (built with buildpacks) |
 | `ghcr.io/tomaytotomato/spring-data-solr-solr:latest` | Solr 10 with `managed-schema.xml` baked in |
 
-## API endpoints
+## API reference
 
-All endpoints are under `/api/books`.
+Interactive API docs (Swagger UI) are available at `/docs` once the app is running.
+The raw OpenAPI spec is at `/api-docs`.
 
-| Method | Path | Params | Description |
-|---|---|---|---|
-| `GET` | `/api/books` | — | List all books |
-| `GET` | `/api/books/{id}` | — | Find book by ID |
-| `POST` | `/api/books` | body: Book JSON | Save a book |
-| `DELETE` | `/api/books/{id}` | — | Delete a book |
-| `GET` | `/api/books/search` | `q` | Full-text title search |
-| `GET` | `/api/books/starting-with` | `prefix` | Title prefix search |
-| `GET` | `/api/books/by-author` | `author` | Find by author |
-| `GET` | `/api/books/by-author-after` | `author`, `year` | Author + year filter (paginated) |
-| `GET` | `/api/books/in-stock` | — | In-stock books only |
-| `GET` | `/api/books/top-rated` | `minRating` (default 4.0) | Books above rating threshold |
-| `GET` | `/api/books/price-range` | `low`, `high` | Price range filter |
-| `GET` | `/api/books/by-year-range` | `from`, `to` | Year range filter |
-| `GET` | `/api/books/cheap` | `maxPrice` (default 15) | Books below price threshold |
-| `GET` | `/api/books/highlight` | `q` | Search with highlighted snippets |
-| `GET` | `/api/books/facets` | `q` (default `*`) | Search with category/author facets |
-| `GET` | `/api/books/cursor` | `cursorMark`, `pageSize` | Cursor-based deep pagination |
-| `GET` | `/api/books/nearby` | `lat`, `lon`, `radiusKm` | Geo search by radius |
-| `GET` | `/api/books/within` | `lat`, `lon`, `radiusKm` | Geo search within bounds |
-| `PATCH` | `/api/books/{id}/price` | `price` | Partial update — price only |
-| `POST` | `/api/books/{id}/category` | `category` | Partial update — add category |
-| `GET` | `/api/books/stats` | — | Total/in-stock/out-of-stock counts |
-| `GET` | `/actuator/health` | — | Health check (includes Solr) |
+```
+http://localhost:8080/docs
+```
