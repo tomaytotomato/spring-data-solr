@@ -2,6 +2,7 @@ package com.tomaytotomato.data.solr.mapping;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.solr.client.solrj.beans.Field;
@@ -65,6 +66,37 @@ class SolrDocumentReaderTest {
       assertThat(result.categories).isNull();
     }
 
+    @Test
+    void incompatibleFieldWithoutConverterIsLeftNull() {
+      var reader = new SolrDocumentReader<>(DatedEntity.class);
+      var solrDoc = new SolrDocument();
+      solrDoc.setField("id", "d-1");
+      solrDoc.setField("pub_date_s", "2024-06-01");
+
+      var result = reader.convert(solrDoc);
+
+      assertThat(result.id).isEqualTo("d-1");
+      assertThat(result.publishedDate).isNull();
+    }
+  }
+
+  @Nested
+  class ConvertWithCustomConverter {
+
+    @Test
+    void appliesRegisteredReadConverterForIncompatibleField() {
+      var reg = SolrConverterRegistration.of(String.class, LocalDate.class, LocalDate::parse);
+      var mappingConverter = new SolrMappingConverter(new SolrCustomConversions(List.of(reg)));
+      var reader = new SolrDocumentReader<>(DatedEntity.class, mappingConverter);
+      var solrDoc = new SolrDocument();
+      solrDoc.setField("id", "d-2");
+      solrDoc.setField("pub_date_s", "2024-06-01");
+
+      var result = reader.convert(solrDoc);
+
+      assertThat(result.id).isEqualTo("d-2");
+      assertThat(result.publishedDate).isEqualTo(LocalDate.of(2024, 6, 1));
+    }
   }
 
   public static class BookEntity {
@@ -80,5 +112,14 @@ class SolrDocumentReaderTest {
 
     @Field("categories_ss")
     public List<String> categories;
+  }
+
+  public static class DatedEntity {
+
+    @Field("id")
+    public String id;
+
+    @Field("pub_date_s")
+    public LocalDate publishedDate;
   }
 }

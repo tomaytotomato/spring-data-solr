@@ -1,6 +1,8 @@
 package com.tomaytotomato.data.solr;
 
 import com.tomaytotomato.data.solr.health.SolrHealthIndicator;
+import com.tomaytotomato.data.solr.mapping.SolrConverterRegistration;
+import com.tomaytotomato.data.solr.mapping.SolrCustomConversions;
 import com.tomaytotomato.data.solr.query.Criteria;
 import com.tomaytotomato.data.solr.query.FacetOptions;
 import com.tomaytotomato.data.solr.query.GeoDistance;
@@ -12,6 +14,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -790,6 +793,103 @@ abstract class AbstractSolrIntegrationTest {
         var results = template.stream(COLLECTION, expression);
 
         assertThat(results).isEmpty();
+      });
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Custom conversion pipeline fixtures
+  // -------------------------------------------------------------------------
+
+  /**
+   * Minimal entity that stores a publication date as an ISO-8601 string in Solr
+   * ({@code pub_date_s}) but exposes it as a {@link LocalDate} in Java.
+   * A user-registered {@code String → LocalDate} converter should be applied
+   * on read, and a {@code LocalDate → String} converter on write.
+   */
+  public static class DatedBook {
+
+    @Field("id")
+    public String id;
+
+    @Field("pub_date_s")
+    public LocalDate publishedDate;
+  }
+
+  static DatedBook datedBook(String id, LocalDate date) {
+    var book = new DatedBook();
+    book.id = id;
+    book.publishedDate = date;
+    return book;
+  }
+
+  @Nested
+  class CustomConversions {
+
+    @Test
+    void userRegisteredConvertersAreAppliedDuringWriteAndRead() {
+      var writeConverter = SolrConverterRegistration.of(
+          LocalDate.class, String.class, LocalDate::toString);
+      var readConverter = SolrConverterRegistration.of(
+          String.class, LocalDate.class, LocalDate::parse);
+
+      var customConversions = new SolrCustomConversions(List.of(writeConverter, readConverter));
+
+      contextRunner
+          .withBean(SolrCustomConversions.class, () -> customConversions)
+          .run(ctx -> {
+            var template = ctx.getBean(SolrTemplate.class);
+            var date = LocalDate.of(2024, 6, 1);
+            var book = datedBook("conv-1", date);
+
+            template.save(COLLECTION, book);
+
+            var found = template.findById(COLLECTION, "conv-1", DatedBook.class);
+            assertThat(found).isPresent();
+            assertThat(found.get().publishedDate).isEqualTo(date);
+          });
+    }
+
+    @Test
+    void writeConverterTransformsLocalDateToStringInSolrDocument() {
+      var writeConverter = SolrConverterRegistration.of(
+          LocalDate.class, String.class, LocalDate::toString);
+      var readConverter = SolrConverterRegistration.of(
+          String.class, LocalDate.class, LocalDate::parse);
+
+      var customConversions = new SolrCustomConversions(List.of(writeConverter, readConverter));
+
+      contextRunner
+          .withBean(SolrCustomConversions.class, () -> customConversions)
+          .run(ctx -> {
+            var template = ctx.getBean(SolrTemplate.class);
+            var date = LocalDate.of(1965, 8, 1);
+            template.save(COLLECTION, datedBook("conv-2", date));
+
+            var query = new SimpleQuery(Criteria.where("pub_date_s").is("1965-08-01"));
+            var results = template.queryForPage(COLLECTION, query, DatedBook.class);
+
+            assertThat(results.getTotalElements()).isEqualTo(1);
+            assertThat(results.getContent().getFirst().publishedDate)
+                .isEqualTo(LocalDate.of(1965, 8, 1));
+          });
+    }
+
+    @Test
+    void withoutCustomConverterLocalDateFieldIsNotMapped() {
+      contextRunner.run(ctx -> {
+        var template = ctx.getBean(SolrTemplate.class);
+        var book = datedBook("conv-3", LocalDate.of(2024, 1, 1));
+
+        // Without converters the write should not crash but the field won't round-trip
+        // as a LocalDate — the assertion verifies the current (broken) baseline and
+        // acts as a contrast to the converter-enabled test above.
+        template.save(COLLECTION, book);
+
+        var found = template.findById(COLLECTION, "conv-3", DatedBook.class);
+        // Without a converter the date field won't be readable as LocalDate
+        assertThat(found).isPresent();
+        assertThat(found.get().publishedDate).isNull();
       });
     }
   }

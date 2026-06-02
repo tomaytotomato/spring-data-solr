@@ -35,9 +35,9 @@ public class SolrAutoConfiguration {
     @ConditionalOnMissingBean(SolrTemplate.class)
     SolrTemplate micrometerSolrTemplate(SolrClient solrClient, SolrProperties properties,
         Environment environment, ObservationRegistry observationRegistry,
-        SolrMappingContext mappingContext) {
+        SolrMappingContext mappingContext, SolrMappingConverter mappingConverter) {
       return new MicrometerSolrTemplate(solrClient, properties.getCommitMode(), environment,
-          observationRegistry, mappingContext);
+          observationRegistry, mappingContext, mappingConverter);
     }
   }
 
@@ -103,8 +103,10 @@ public class SolrAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean
   public SolrTemplate solrTemplate(SolrClient solrClient, SolrProperties properties,
-      Environment environment, SolrMappingContext mappingContext) {
-    return new SolrTemplate(solrClient, properties.getCommitMode(), environment, mappingContext);
+      Environment environment, SolrMappingContext mappingContext,
+      SolrMappingConverter mappingConverter) {
+    return new SolrTemplate(solrClient, properties.getCommitMode(), environment, mappingContext,
+        mappingConverter);
   }
 
   @Bean
