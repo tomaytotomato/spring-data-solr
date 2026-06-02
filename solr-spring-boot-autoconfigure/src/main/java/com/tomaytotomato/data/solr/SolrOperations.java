@@ -17,8 +17,8 @@ import org.springframework.data.domain.Pageable;
  * operations are available:
  * <ul>
  *   <li><strong>Collection-explicit</strong> — the caller supplies the Solr collection name.</li>
- *   <li><strong>{@code @SolrDocument}-aware</strong> — the collection name is resolved
- *       automatically from the {@link com.tomaytotomato.data.solr.mapping.SolrDocument} annotation
+ *   <li><strong>{@code @SolrEntity}-aware</strong> — the collection name is resolved
+ *       automatically from the {@link com.tomaytotomato.data.solr.mapping.SolrEntity} annotation
  *       on the entity class.</li>
  * </ul>
  *
@@ -167,11 +167,11 @@ public interface SolrOperations {
    */
   void softCommit(String collection);
 
-  // @SolrDocument-aware convenience methods
+  // @SolrEntity-aware convenience methods
 
   /**
    * Saves the given entity, resolving the target collection from the
-   * {@link com.tomaytotomato.data.solr.mapping.SolrDocument} annotation on the entity class.
+   * {@link com.tomaytotomato.data.solr.mapping.SolrEntity} annotation on the entity class.
    *
    * @param <T> the entity type
    * @param entity the entity to save
@@ -181,7 +181,7 @@ public interface SolrOperations {
 
   /**
    * Retrieves a single document by its unique ID, resolving the collection from the
-   * {@link com.tomaytotomato.data.solr.mapping.SolrDocument} annotation on {@code type}.
+   * {@link com.tomaytotomato.data.solr.mapping.SolrEntity} annotation on {@code type}.
    *
    * @param <T> the entity type
    * @param id the document ID
@@ -191,13 +191,13 @@ public interface SolrOperations {
   <T> Optional<T> findById(String id, Class<T> type);
 
   /**
-   * Executes a paged query, resolving the collection from the {@code @SolrDocument} annotation on
+   * Executes a paged query, resolving the collection from the {@code @SolrEntity} annotation on
    * {@code type}. The {@code pageable} is applied to the query before execution, controlling the
    * page size and offset sent to Solr.
    *
    * @param <T> the entity type
    * @param query the query to execute
-   * @param type the target entity class; its {@code @SolrDocument} annotation provides the collection name
+   * @param type the target entity class; its {@code @SolrEntity} annotation provides the collection name
    * @param pageable pagination and sort parameters
    * @return a {@link SolrPage} containing the results and total hit count
    */

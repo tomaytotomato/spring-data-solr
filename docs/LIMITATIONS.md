@@ -22,7 +22,7 @@
 - **DATASOLR-444**: Nested objects indexed as String representation — nested document objects were serialised as their `toString()` output rather than being properly indexed as structured data
 - **DATASOLR-402**: Missing collection name in SingleEntityExecution since M3 — single-entity repository methods lost the collection name in the query execution path, causing routing failures
 - **DATASOLR-363**: SolrTemplate appends class name to URL causing 404s — the template incorrectly appended the entity class name to the Solr endpoint URL, breaking all requests to the core
-- **DATASOLR-304**: `@SolrDocument solrCoreName` doesn't support PropertyPlaceholders — core names had to be hardcoded; `${property.key}` expressions in `@SolrDocument` were never resolved
+- **DATASOLR-304**: `@SolrDocument solrCoreName` doesn't support PropertyPlaceholders — core names had to be hardcoded; `${property.key}` expressions in `@SolrDocument` were never resolved (now `@SolrEntity`)
 - **DATASOLR-248**: Multivalued fields not parsed correctly — collection-type fields (`List<String>`, etc.) were not correctly deserialised from Solr responses, returning single values or empty collections
 - **DATASOLR-237**: Dynamic field mapping broken — dynamically named Solr fields (e.g. `*_s`, `*_i` patterns) could not be mapped to Java fields reliably
 

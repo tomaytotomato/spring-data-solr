@@ -258,7 +258,7 @@ sessions 6–9, all green).
 - [ ] **#44** — Complete Micrometer instrumentation (`savePartialUpdate`, `commit`, `queryWithCursor`)
 - [ ] **#45** — Upgrade `MicrometerSolrTemplate` to `ObservationRegistry` for distributed tracing
 - [ ] **#46** — Remove `spring-tx` from starter POM (no transaction manager integration exists)
-- [ ] **#47** — Rename `@SolrDocument` to avoid collision with `org.apache.solr.common.SolrDocument`
+- [x] **#47** — Rename `@SolrDocument` → `@SolrEntity` to eliminate collision with `org.apache.solr.common.SolrDocument`
 - [ ] **#49** — `PartTreeSolrQuery` default pagination — document or make configurable
 - [ ] **#50** — `SolrPersistentEntity.getCollection()` doesn't resolve `${placeholder}` names
 - [ ] **#27** — Javadoc on public mapping API

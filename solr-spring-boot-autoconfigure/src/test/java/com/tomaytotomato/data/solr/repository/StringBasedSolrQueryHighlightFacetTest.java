@@ -3,7 +3,7 @@ package com.tomaytotomato.data.solr.repository;
 import com.tomaytotomato.data.solr.FacetPage;
 import com.tomaytotomato.data.solr.HighlightPage;
 import com.tomaytotomato.data.solr.SolrTemplate;
-import com.tomaytotomato.data.solr.mapping.SolrDocument;
+import com.tomaytotomato.data.solr.mapping.SolrEntity;
 import com.tomaytotomato.data.solr.query.SimpleQuery;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
@@ -33,7 +33,7 @@ class StringBasedSolrQueryHighlightFacetTest {
   @Mock
   private SolrTemplate solrTemplate;
 
-  @SolrDocument(collection = "books")
+  @SolrEntity(collection = "books")
   public static class Book {
     String id;
     String title;

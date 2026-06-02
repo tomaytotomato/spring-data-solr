@@ -71,12 +71,12 @@ setters are functional, but if you're targeting JDK 25 you should look like it.
 
 ## Major Issues (Should Fix)
 
-### 4. `${placeholder}` not resolved in `@SolrDocument(collection)`
+### 4. `${placeholder}` not resolved in `@SolrEntity(collection)`
 
 - **File:** `SolrDocumentResolver.java`
 - **Problem:** `LIMITATIONS.md` implies this is fixed, but `resolveCollection` reads the annotation
   value directly without consulting the Spring `Environment`. Writing
-  `@SolrDocument(collection = "${solr.collection}")` gives you a literal string.
+  `@SolrEntity(collection = "${solr.collection}")` gives you a literal string.
 - **Solution:** Inject `Environment` into `SolrDocumentResolver` and call
   `environment.resolvePlaceholders(collection)`.
 
@@ -133,7 +133,7 @@ working and tested.
 
 What I'd want to demo that isn't here yet:
 
-1. **`@SolrDocument` with `${property.placeholder}` support** — environment-driven collection names
+1. **`@SolrEntity` with `${property.placeholder}` support** — environment-driven collection names
 2. **Micrometer integration** — `Timer` on template operations for Grafana visibility
 3. **Full auto-configuration integration test for repository scanning** — verify the happy path
    end-to-end

@@ -1,7 +1,7 @@
 package com.tomaytotomato.data.solr.repository;
 
 import com.tomaytotomato.data.solr.SolrTemplate;
-import com.tomaytotomato.data.solr.mapping.SolrDocument;
+import com.tomaytotomato.data.solr.mapping.SolrEntity;
 import com.tomaytotomato.data.solr.query.Criteria;
 import com.tomaytotomato.data.solr.query.SimpleQuery;
 import java.util.List;
@@ -43,7 +43,7 @@ class SimpleSolrRepositoryTest {
     return book;
   }
 
-  @SolrDocument(collection = "test")
+  @SolrEntity(collection = "test")
   static class TestBook {
     @Field
     String id;

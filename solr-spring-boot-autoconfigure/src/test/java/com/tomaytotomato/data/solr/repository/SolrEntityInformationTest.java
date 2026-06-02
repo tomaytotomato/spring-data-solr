@@ -1,6 +1,6 @@
 package com.tomaytotomato.data.solr.repository;
 
-import com.tomaytotomato.data.solr.mapping.SolrDocument;
+import com.tomaytotomato.data.solr.mapping.SolrEntity;
 import org.apache.solr.client.solrj.beans.Field;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class SolrEntityInformationTest {
 
-  @SolrDocument(collection = "books")
+  @SolrEntity(collection = "books")
   static class BookWithAnnotatedId {
     @Field
     String id;
@@ -17,7 +17,7 @@ class SolrEntityInformationTest {
     String title;
   }
 
-  @SolrDocument(collection = "books")
+  @SolrEntity(collection = "books")
   static class BookWithRenamedIdField {
     @Field("id")
     String bookId;
@@ -25,7 +25,7 @@ class SolrEntityInformationTest {
     String title;
   }
 
-  @SolrDocument(collection = "books")
+  @SolrEntity(collection = "books")
   static class BookWithNoIdField {
     @Field
     String title;

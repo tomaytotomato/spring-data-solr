@@ -1,6 +1,6 @@
 package com.tomaytotomato.data.solr;
 
-import com.tomaytotomato.data.solr.mapping.SolrDocument;
+import com.tomaytotomato.data.solr.mapping.SolrEntity;
 import com.tomaytotomato.data.solr.query.Criteria;
 import com.tomaytotomato.data.solr.query.HighlightOptions;
 import com.tomaytotomato.data.solr.query.SimpleQuery;
@@ -74,7 +74,7 @@ class SolrTemplateTest {
     @Field public String id;
   }
 
-  @SolrDocument(collection = "annotated-collection")
+  @SolrEntity(collection = "annotated-collection")
   public static class AnnotatedDocument {
     @Field public String id;
   }

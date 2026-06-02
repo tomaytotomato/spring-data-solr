@@ -4,10 +4,10 @@ import org.springframework.core.env.Environment;
 
 /**
  * Resolves the Solr collection name for a domain class from its
- * {@link SolrDocument @SolrDocument} annotation.
+ * {@link SolrEntity @SolrEntity} annotation.
  *
  * <p>When instantiated with an {@link Environment}, property placeholders of the form
- * {@code ${some.property}} in the {@link SolrDocument#collection()} value are expanded using
+ * {@code ${some.property}} in the {@link SolrEntity#collection()} value are expanded using
  * {@link Environment#resolvePlaceholders(String)}. If the property is not set the placeholder
  * literal is returned unchanged.
  *
@@ -37,9 +37,9 @@ public class SolrDocumentResolver {
    * <p>Delegates to {@link #resolveCollection(Class, Environment)} using the environment that
    * was supplied at construction time.
    *
-   * @param type the domain class annotated with {@link SolrDocument}
+   * @param type the domain class annotated with {@link SolrEntity}
    * @return the resolved collection name, never {@code null}
-   * @throws IllegalArgumentException if {@code type} is not annotated with {@link SolrDocument}
+   * @throws IllegalArgumentException if {@code type} is not annotated with {@link SolrEntity}
    */
   public String resolve(Class<?> type) {
     return resolveCollection(type, environment);
@@ -52,9 +52,9 @@ public class SolrDocumentResolver {
   /**
    * Resolves the collection name for {@code type} without placeholder expansion.
    *
-   * @param type the domain class annotated with {@link SolrDocument}
+   * @param type the domain class annotated with {@link SolrEntity}
    * @return the raw collection name (placeholders not expanded)
-   * @throws IllegalArgumentException if {@code type} is not annotated with {@link SolrDocument}
+   * @throws IllegalArgumentException if {@code type} is not annotated with {@link SolrEntity}
    */
   public static String resolveCollection(Class<?> type) {
     return resolveCollection(type, null);
@@ -64,16 +64,16 @@ public class SolrDocumentResolver {
    * Resolves the collection name for {@code type}, expanding {@code ${...}} placeholders via
    * {@code environment} when it is non-{@code null}.
    *
-   * @param type        the domain class annotated with {@link SolrDocument}
+   * @param type        the domain class annotated with {@link SolrEntity}
    * @param environment used to resolve placeholders; may be {@code null}
    * @return the resolved collection name
-   * @throws IllegalArgumentException if {@code type} is not annotated with {@link SolrDocument}
+   * @throws IllegalArgumentException if {@code type} is not annotated with {@link SolrEntity}
    */
   public static String resolveCollection(Class<?> type, Environment environment) {
-    var annotation = type.getAnnotation(SolrDocument.class);
+    var annotation = type.getAnnotation(SolrEntity.class);
     if (annotation == null) {
       throw new IllegalArgumentException(
-          "Class '%s' is not annotated with @SolrDocument".formatted(type.getSimpleName()));
+          "Class '%s' is not annotated with @SolrEntity".formatted(type.getSimpleName()));
     }
     var collection = annotation.collection();
     if (collection.isEmpty()) {
@@ -83,9 +83,9 @@ public class SolrDocumentResolver {
   }
 
   /**
-   * Returns {@code true} if {@code type} is annotated with {@link SolrDocument}.
+   * Returns {@code true} if {@code type} is annotated with {@link SolrEntity}.
    */
   public static boolean isSolrDocument(Class<?> type) {
-    return type.isAnnotationPresent(SolrDocument.class);
+    return type.isAnnotationPresent(SolrEntity.class);
   }
 }

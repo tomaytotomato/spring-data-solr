@@ -18,7 +18,7 @@ import org.springframework.data.domain.Sort;
  * Default {@link SolrRepository} implementation.
  *
  * <p>Delegates all persistence operations to a {@link SolrTemplate}, using the collection name
- * derived from the {@link com.tomaytotomato.data.solr.mapping.SolrDocument} annotation on the
+ * derived from the {@link com.tomaytotomato.data.solr.mapping.SolrEntity} annotation on the
  * entity class. This class is instantiated by the repository infrastructure and is not normally
  * used directly by application code.
  *
@@ -54,7 +54,7 @@ public class SimpleSolrRepository<T> implements SolrRepository<T> {
   /**
    * Creates a new {@link SimpleSolrRepository} for the given entity class, resolving the
    * collection name via the supplied {@link SolrDocumentResolver} so that
-   * {@code ${placeholder}} values in {@link com.tomaytotomato.data.solr.mapping.SolrDocument#collection()}
+   * {@code ${placeholder}} values in {@link com.tomaytotomato.data.solr.mapping.SolrEntity#collection()}
    * are expanded against the Spring {@link org.springframework.core.env.Environment}.
    *
    * @param solrTemplate the template to delegate persistence operations to
