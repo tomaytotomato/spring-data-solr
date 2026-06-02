@@ -24,18 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Cache Maven local repo
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -44,21 +34,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and install library JARs (skip tests)
-        run: |
-          ./mvnw install -N -DskipTests -q
-          ./mvnw install -pl solr-spring-boot-autoconfigure,solr-spring-boot-starter -DskipTests -q
-
-      - name: Build and push Spring Boot app image (buildpacks)
-        run: |
-          ./mvnw spring-boot:build-image \
-            -pl solr-spring-boot-sample \
-            -DskipTests \
-            -Dspring-boot.build-image.imageName=${{ env.APP_IMAGE }}:latest \
-            -Dspring-boot.build-image.publish=true \
-            -Dspring-boot.build-image.publishRegistry.url=${{ env.REGISTRY }} \
-            -Dspring-boot.build-image.publishRegistry.username=${{ github.actor }} \
-            -Dspring-boot.build-image.publishRegistry.password=${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Spring Boot app image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: solr-spring-boot-sample/Dockerfile
+          push: true
+          tags: |
+            ${{ env.APP_IMAGE }}:latest
+            ${{ env.APP_IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build and push custom Solr image
         uses: docker/build-push-action@v5
@@ -68,3 +54,5 @@ jobs:
           tags: |
             ${{ env.SOLR_IMAGE }}:latest
             ${{ env.SOLR_IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
