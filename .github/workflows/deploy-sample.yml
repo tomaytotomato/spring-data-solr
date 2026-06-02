@@ -45,7 +45,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and install library JARs (skip tests)
-        run: ./mvnw install -pl solr-spring-boot-autoconfigure,solr-spring-boot-starter -DskipTests -q
+        run: |
+          ./mvnw install -N -DskipTests -q
+          ./mvnw install -pl solr-spring-boot-autoconfigure,solr-spring-boot-starter -DskipTests -q
 
       - name: Build and push Spring Boot app image (buildpacks)
         run: |
