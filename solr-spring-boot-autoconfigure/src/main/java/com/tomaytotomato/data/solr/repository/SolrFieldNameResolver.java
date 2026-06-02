@@ -1,5 +1,6 @@
 package com.tomaytotomato.data.solr.repository;
 
+import com.tomaytotomato.data.solr.mapping.SolrPersistentProperty;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,14 +54,14 @@ public class SolrFieldNameResolver {
     while (currentClass != null && currentClass != Object.class) {
       for (var field : currentClass.getDeclaredFields()) {
         var annotation = field.getAnnotation(Field.class);
-        if (annotation != null && !annotation.value().isEmpty() && !"#default".equals(annotation.value())) {
+        if (annotation != null && !annotation.value().isEmpty() && !SolrPersistentProperty.FIELD_DEFAULT_SENTINEL.equals(annotation.value())) {
           mapping.putIfAbsent(field.getName(), annotation.value());
         }
       }
 
       for (var method : currentClass.getDeclaredMethods()) {
         var annotation = method.getAnnotation(Field.class);
-        if (annotation != null && !annotation.value().isEmpty() && !"#default".equals(annotation.value())) {
+        if (annotation != null && !annotation.value().isEmpty() && !SolrPersistentProperty.FIELD_DEFAULT_SENTINEL.equals(annotation.value())) {
           var name = method.getName();
           if (name.startsWith("get") && name.length() > 3) {
             var propertyName = Character.toLowerCase(name.charAt(3)) + name.substring(4);

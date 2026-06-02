@@ -7,7 +7,6 @@ import com.tomaytotomato.data.solr.query.SimpleQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.apache.solr.client.solrj.request.SolrQuery;
 import org.apache.solr.client.solrj.util.ClientUtils;
@@ -165,7 +164,7 @@ public class SimpleSolrRepository<T> implements SolrRepository<T> {
   public Iterable<T> findAllById(Iterable<String> ids) {
     var idList = StreamSupport.stream(ids.spliterator(), false)
         .map(ClientUtils::escapeQueryChars)
-        .collect(Collectors.toList());
+        .toList();
     if (idList.isEmpty()) {
       return List.of();
     }
