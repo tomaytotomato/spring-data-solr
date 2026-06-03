@@ -27,6 +27,15 @@ The API is available at `http://localhost:8080`. Actuator health at `http://loca
 
 ## Deploying to Railway
 
+### One-click deploy
+
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/rhCU8p?referralCode=_GAcKG&utm_medium=integration&utm_source=template&utm_campaign=generic)
+
+This template provisions both the Solr and App services and wires `SPRING_SOLR_STANDALONE_HOST`
+automatically.
+
+### Manual setup
+
 1. Create a new Railway project.
 2. Add two services — **Solr** and **App** — each pointing at this repo.
 
