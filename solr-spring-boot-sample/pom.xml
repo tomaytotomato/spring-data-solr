@@ -42,6 +42,18 @@
       <version>3.0.3</version>
     </dependency>
 
+    <!--
+      solr-api 10.0.0 brings in swagger-annotations-jakarta:2.2.22 which predates
+      the validationGroups() method on @Parameter. swagger-core-jakarta:2.2.47
+      (pulled by springdoc) requires that method, causing NoSuchMethodError at
+      /api-docs. Force the annotations up to match swagger-core.
+    -->
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations-jakarta</artifactId>
+      <version>2.2.47</version>
+    </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
