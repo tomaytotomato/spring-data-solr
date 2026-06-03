@@ -53,7 +53,7 @@
     <analyzer type="query">
       <tokenizer name="standard"/>
       <filter name="stop" ignoreCase="true" words="stopwords.txt"/>
-      <filter name="synonyms" expand="true" ignoreCase="true" synonyms="synonyms.txt"/>
+      <filter name="synonymGraph" expand="true" ignoreCase="true" synonyms="synonyms.txt"/>
       <filter name="lowercase"/>
     </analyzer>
   </fieldType>
