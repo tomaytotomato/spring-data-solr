@@ -1,10 +1,28 @@
 services:
   solr:
-    image: ghcr.io/tomaytotomato/spring-data-solr-solr10:latest
-    # To build from the local Dockerfile instead, comment out `image` above and uncomment below:
-    # build: ./solr-config
+    build: ./solr-config
+    # To use the published GHCR image instead, comment out `build` above and uncomment below:
+    # image: ghcr.io/tomaytotomato/spring-data-solr-solr10:latest
     ports:
       - "8983:8983"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8983/solr/admin/info/system"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  app:
+    build:
+      context: ..
+      dockerfile: solr-spring-boot-sample/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_SOLR_STANDALONE_HOST: http://solr:8983/solr
+    depends_on:
+      solr:
+        condition: service_healthy
 
 volumes:
   solr_data:
