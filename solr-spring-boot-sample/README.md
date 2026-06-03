@@ -29,7 +29,7 @@ The API is available at `http://localhost:8080`. Actuator health at `http://loca
 
 ### One-click deploy
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/rhCU8p?referralCode=_GAcKG&utm_medium=integration&utm_source=template&utm_campaign=generic)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/spring-data-solr?referralCode=_GAcKG&utm_medium=integration&utm_source=template&utm_campaign=generic)
 
 This template provisions both the Solr and App services and wires `SPRING_SOLR_STANDALONE_HOST`
 automatically.

@@ -8,7 +8,7 @@
 ![Solr](https://img.shields.io/badge/Solr-9%20%7C%2010-blue)
 ![License](https://img.shields.io/badge/License-Apache%202.0-blue)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Railway-7B2CF2)](https://spring-data-solr-sample-book-production.up.railway.app)
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/rhCU8p?referralCode=_GAcKG&utm_medium=integration&utm_source=template&utm_campaign=generic)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/spring-data-solr?referralCode=_GAcKG&utm_medium=integration&utm_source=template&utm_campaign=generic)
 
 Sometimes you wonder if a project is really dead or if it's just taking a break in the attic.
 
@@ -118,7 +118,7 @@ The bookstore sample app is deployed and running on Railway:
 
 Want your own instance? One click gets you a Railway project with both Solr and the app wired together:
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/rhCU8p?referralCode=_GAcKG&utm_medium=integration&utm_source=template&utm_campaign=generic)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/spring-data-solr?referralCode=_GAcKG&utm_medium=integration&utm_source=template&utm_campaign=generic)
 
 Set `SPRING_SOLR_STANDALONE_HOST` to the internal Railway URL of your Solr service once deployed.
 
