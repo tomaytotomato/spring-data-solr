@@ -3,7 +3,6 @@ package com.tomaytotomato.data.solr.sample;
 import com.tomaytotomato.data.solr.CursorResult;
 import com.tomaytotomato.data.solr.FacetPage;
 import com.tomaytotomato.data.solr.HighlightPage;
-import com.tomaytotomato.data.solr.PartialUpdate;
 import com.tomaytotomato.data.solr.SolrTemplate;
 import com.tomaytotomato.data.solr.query.Criteria;
 import com.tomaytotomato.data.solr.query.FacetOptions;
@@ -18,12 +17,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,17 +47,6 @@ public class BookController {
     return bookRepository.findById(id)
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
-  }
-
-  @PostMapping
-  public Book save(@RequestBody Book book) {
-    return bookRepository.save(book);
-  }
-
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteById(@PathVariable String id) {
-    bookRepository.deleteById(id);
-    return ResponseEntity.noContent().build();
   }
 
   @GetMapping("/search")
@@ -189,22 +173,6 @@ public class BookController {
             GeoDistance.kilometers(radiusKm)));
     query.setPageable(PageRequest.of(0, 20));
     return solrTemplate.queryForPage(COLLECTION, query, Book.class).getContent();
-  }
-
-  @PatchMapping("/{id}/price")
-  public ResponseEntity<Void> updatePrice(@PathVariable String id,
-      @RequestParam double price) {
-    var update = new PartialUpdate(id).set("price_d", price);
-    solrTemplate.savePartialUpdate(COLLECTION, update);
-    return ResponseEntity.noContent().build();
-  }
-
-  @PostMapping("/{id}/category")
-  public ResponseEntity<Void> addCategory(@PathVariable String id,
-      @RequestParam String category) {
-    var update = new PartialUpdate(id).add("categories_ss", category);
-    solrTemplate.savePartialUpdate(COLLECTION, update);
-    return ResponseEntity.noContent().build();
   }
 
   @GetMapping("/stats")
