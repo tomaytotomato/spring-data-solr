@@ -11,8 +11,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  APP_IMAGE: ghcr.io/${{ github.repository_owner }}/spring-data-solr-sample
-  SOLR_IMAGE: ghcr.io/${{ github.repository_owner }}/spring-data-solr-solr
+  APP_IMAGE: ghcr.io/${{ github.repository_owner }}/spring-data-solr-bookstore
+  SOLR_IMAGE: ghcr.io/${{ github.repository_owner }}/spring-data-solr-solr10
 
 jobs:
   publish:

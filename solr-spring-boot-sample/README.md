@@ -31,12 +31,12 @@ The API is available at `http://localhost:8080`. Actuator health at `http://loca
 2. Add two services — **Solr** and **App** — each pointing at this repo.
 
 **Solr service**
-- Source: Docker image `ghcr.io/tomaytotomato/spring-data-solr-solr:latest`
+- Source: Docker image `ghcr.io/tomaytotomato/spring-data-solr-solr10:latest`
 - Start command: `solr-precreate books`
 - No environment variables needed
 
 **App service**
-- Source: Docker image `ghcr.io/tomaytotomato/spring-data-solr-sample:latest`
+- Source: Docker image `ghcr.io/tomaytotomato/spring-data-solr-bookstore:latest`
 - Environment variables:
   ```
   SPRING_SOLR_STANDALONE_HOST=http://<solr-service-internal-host>:8983/solr
@@ -50,8 +50,8 @@ Both images are published to GHCR on every push to `master`:
 
 | Image | Contents |
 |---|---|
-| `ghcr.io/tomaytotomato/spring-data-solr-sample:latest` | Spring Boot app (built with buildpacks) |
-| `ghcr.io/tomaytotomato/spring-data-solr-solr:latest` | Solr 10 with `managed-schema.xml` baked in |
+| `ghcr.io/tomaytotomato/spring-data-solr-bookstore:latest` | Spring Boot app (built with buildpacks) |
+| `ghcr.io/tomaytotomato/spring-data-solr-solr10:latest` | Solr 10 with `managed-schema.xml` baked in |
 
 ## API reference
 
