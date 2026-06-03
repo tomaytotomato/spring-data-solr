@@ -39,6 +39,7 @@ jobs:
         with:
           context: .
           file: solr-spring-boot-sample/Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.APP_IMAGE }}:latest
@@ -50,6 +51,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: solr-spring-boot-sample/solr-config
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ env.SOLR_IMAGE }}:latest

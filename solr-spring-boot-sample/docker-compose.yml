@@ -1,9 +1,8 @@
 services:
   solr:
-    build: ./solr-config
+    image: ghcr.io/tomaytotomato/spring-data-solr-solr10:latest
     ports:
       - "8983:8983"
-    command: solr-precreate books
 
 volumes:
   solr_data:
