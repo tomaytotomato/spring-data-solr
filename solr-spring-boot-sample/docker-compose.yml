@@ -1,6 +1,8 @@
 services:
   solr:
     image: ghcr.io/tomaytotomato/spring-data-solr-solr10:latest
+    # To build from the local Dockerfile instead, comment out `image` above and uncomment below:
+    # build: ./solr-config
     ports:
       - "8983:8983"
 
