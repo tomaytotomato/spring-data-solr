@@ -23,7 +23,6 @@ jobs:
           distribution: 'temurin'
           cache: maven
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Configure Maven Central credentials
         uses: s4u/maven-settings-action@v4.0.0
@@ -34,6 +33,4 @@ jobs:
         run: ./mvnw versions:set -DnewVersion="${GITHUB_REF#refs/tags/}" --batch-mode
 
       - name: Publish to Maven Central
-        run: ./mvnw deploy -P release -DskipTests --batch-mode
-        env:
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: ./mvnw deploy -P release -DskipTests --batch-mode -Dgpg.passphrase="${{ secrets.GPG_PASSPHRASE }}"
