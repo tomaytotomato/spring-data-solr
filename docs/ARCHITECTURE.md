@@ -48,7 +48,7 @@ flowchart TD
   Client --> Template
 
   SHAC --> Health
-  Template -.used by.-> Health
+  Client -.used by.-> Health
 
   SRAC --> Registrar
   Registrar --> Repos
@@ -123,7 +123,7 @@ flowchart LR
     REPO["Repository&lt;T, ID&gt;"]
     CRUD["CrudRepository"]
     PSR["PagingAndSortingRepository"]
-    RFB["RepositoryFactoryBeanSupport"]
+    RFB["RepositoryFactorySupport"]
     QLS["QueryLookupStrategy"]
     PTree["PartTree<br/>method parsing"]
   end
@@ -155,7 +155,7 @@ flowchart LR
   AutoCfg --> HI
 
   Act --> HI
-  HI --> Ops
+  HI --> Client
 
   SolrRepo --> CRUD
   SolrRepo --> PSR
