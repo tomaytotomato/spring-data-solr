@@ -202,6 +202,6 @@ freshness, gh auth guard) apply automatically from `~/.claude/settings.json`.
 
 ## Dev Log
 
-`DEVLOG.md` at the repo root is the single dev log — Days 1–5, from 2026-05-12 onwards.
+`docs/DEVLOG.md` is the single dev log — Days 1–5, from 2026-05-12 onwards.
 
 Update it after significant sessions — use the `devlog` skill, don't edit manually.
