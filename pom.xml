@@ -9,7 +9,7 @@
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>Spring Data Solr Lazarus</name>
+  <name>Spring Data Solr</name>
   <description>A modern Spring Boot starter for Apache Solr 10 — risen from the attic</description>
 
   <modules>

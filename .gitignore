@@ -27,3 +27,4 @@ PLAN.md
 # Claude Code specific
 .claude/worktrees
 .claude/settings.local.json
+.claude/skills/

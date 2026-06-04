@@ -35,7 +35,7 @@ flowchart TD
     Template["SolrTemplate<br/>implements SolrOperations"]
     Health["SolrHealthIndicator<br/>(if Actuator on classpath)"]
     Registrar["SolrRepositoriesRegistrar<br/>(scans @EnableSolrRepositories)"]
-    Repos["SolrRepository<T, ID><br/>proxies"]
+    Repos["SolrRepository<T><br/>proxies"]
   end
 
   SFL --> SAC
@@ -133,7 +133,7 @@ flowchart LR
     Props["SolrProperties"]
     AutoCfg["3 @AutoConfiguration<br/>classes"]
     Ops["SolrOperations<br/>+ SolrTemplate"]
-    SolrRepo["SolrRepository<T, ID>"]
+    SolrRepo["SolrRepository<T>"]
     SimpleRepo["SimpleSolrRepository"]
     Factory["SolrRepositoryFactory<br/>+ FactoryBean"]
     Lookup["SolrQueryLookupStrategy"]
