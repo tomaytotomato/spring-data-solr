@@ -10,7 +10,7 @@
   <packaging>pom</packaging>
 
   <name>Spring Data Solr</name>
-  <description>A modern Spring Boot starter for Apache Solr 10 — risen from the attic</description>
+  <description>A modern Spring Boot starter for Apache Solr 9 and 10, reborn for the current Spring ecosystem</description>
 
   <modules>
     <module>solr-spring-boot-autoconfigure</module>
