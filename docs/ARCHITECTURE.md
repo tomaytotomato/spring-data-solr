@@ -35,7 +35,7 @@ flowchart TD
     Template["SolrTemplate<br/>implements SolrOperations"]
     Health["SolrHealthIndicator<br/>(if Actuator on classpath)"]
     Registrar["SolrRepositoriesRegistrar<br/>(scans @EnableSolrRepositories)"]
-    Repos["SolrRepository<T, ID><br/>proxies"]
+    Repos["SolrRepository<T><br/>proxies"]
   end
 
   SFL --> SAC
@@ -48,7 +48,7 @@ flowchart TD
   Client --> Template
 
   SHAC --> Health
-  Template -.used by.-> Health
+  Client -.used by.-> Health
 
   SRAC --> Registrar
   Registrar --> Repos
@@ -123,7 +123,7 @@ flowchart LR
     REPO["Repository&lt;T, ID&gt;"]
     CRUD["CrudRepository"]
     PSR["PagingAndSortingRepository"]
-    RFB["RepositoryFactoryBeanSupport"]
+    RFB["RepositoryFactorySupport"]
     QLS["QueryLookupStrategy"]
     PTree["PartTree<br/>method parsing"]
   end
@@ -133,7 +133,7 @@ flowchart LR
     Props["SolrProperties"]
     AutoCfg["3 @AutoConfiguration<br/>classes"]
     Ops["SolrOperations<br/>+ SolrTemplate"]
-    SolrRepo["SolrRepository<T, ID>"]
+    SolrRepo["SolrRepository<T>"]
     SimpleRepo["SimpleSolrRepository"]
     Factory["SolrRepositoryFactory<br/>+ FactoryBean"]
     Lookup["SolrQueryLookupStrategy"]
@@ -155,7 +155,7 @@ flowchart LR
   AutoCfg --> HI
 
   Act --> HI
-  HI --> Ops
+  HI --> Client
 
   SolrRepo --> CRUD
   SolrRepo --> PSR
