@@ -1,4 +1,4 @@
-name: Publish sample app images
+name: Publish Sample App to Github Container Registry
 
 on:
   push:
