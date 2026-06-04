@@ -1,4 +1,4 @@
-name: Deploy Spring Data Solr to Maven Central
+name: Deploy Maven 📦
 
 on:
   push:
