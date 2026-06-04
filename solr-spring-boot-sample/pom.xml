@@ -14,6 +14,10 @@
   <name>Solr Spring Boot Sample</name>
   <description>Sample application demonstrating the Solr Spring Boot Starter</description>
 
+  <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.tomaytotomato</groupId>
