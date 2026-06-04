@@ -1,0 +1,39 @@
+name: Publish to Maven Central
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: "Publish"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Configure Maven Central credentials
+        uses: s4u/maven-settings-action@v4.0.0
+        with:
+          servers: '[{"id": "central", "username": "${{ secrets.MAVEN_USERNAME }}", "password": "${{ secrets.MAVEN_PASSWORD }}"}]'
+
+      - name: Set release version from tag
+        run: ./mvnw versions:set -DnewVersion="${GITHUB_REF#refs/tags/}" --batch-mode
+
+      - name: Publish to Maven Central
+        run: ./mvnw deploy -P release -DskipTests --batch-mode
+        env:
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

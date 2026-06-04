@@ -16,6 +16,7 @@
 
   <properties>
     <jackson-csv.version>2.22.0</jackson-csv.version>
+    <maven.deploy.skip>true</maven.deploy.skip>
   </properties>
 
   <dependencies>
