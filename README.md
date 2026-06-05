@@ -7,7 +7,7 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.6-brightgreen)
 ![Solr](https://img.shields.io/badge/Solr-9%20%7C%2010-blue)
 ![License](https://img.shields.io/badge/License-Apache%202.0-blue)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Railway-7B2CF2)](https://spring-data-solr-sample-book-production.up.railway.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Railway-7B2CF2)](https://spring-data-solr-sample-book-production.up.railway.app/docs)
 
 Sometimes you wonder if a project is really dead or if it's just taking a break in the attic.
 
