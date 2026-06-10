@@ -35,7 +35,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Spring Boot app image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: solr-spring-boot-sample/Dockerfile
@@ -48,7 +48,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and push custom Solr image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: solr-spring-boot-sample/solr-config
           platforms: linux/amd64,linux/arm64
