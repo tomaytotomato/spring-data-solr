@@ -50,7 +50,7 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <spring-boot.version>4.0.6</spring-boot.version>
+    <spring-boot.version>4.1.0</spring-boot.version>
     <solr.version>10.0.0</solr.version>
     <testcontainers.version>2.0.5</testcontainers.version>
     <jacoco.version>0.8.15</jacoco.version>
