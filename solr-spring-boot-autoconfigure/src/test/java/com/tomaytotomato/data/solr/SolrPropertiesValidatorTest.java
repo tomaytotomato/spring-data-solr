@@ -50,8 +50,8 @@ class SolrPropertiesValidatorTest {
       assertThatThrownBy(() -> SolrPropertiesValidator.validate(properties))
           .isInstanceOf(IllegalStateException.class)
           .hasMessageContaining("No Solr configuration found")
-          .hasMessageContaining("spring.solr.standalone.host")
-          .hasMessageContaining("spring.solr.cloud.zk-host");
+          .hasMessageContaining("spring.data.solr.standalone.host")
+          .hasMessageContaining("spring.data.solr.cloud.zk-host");
     }
 
     @Test
@@ -63,8 +63,8 @@ class SolrPropertiesValidatorTest {
       assertThatThrownBy(() -> SolrPropertiesValidator.validate(properties))
           .isInstanceOf(IllegalStateException.class)
           .hasMessageContaining("Ambiguous Solr configuration")
-          .hasMessageContaining("spring.solr.standalone")
-          .hasMessageContaining("spring.solr.cloud");
+          .hasMessageContaining("spring.data.solr.standalone")
+          .hasMessageContaining("spring.data.solr.cloud");
     }
   }
 
@@ -105,7 +105,7 @@ class SolrPropertiesValidatorTest {
 
       assertThat(warningMessages())
           .anySatisfy(msg -> assertThat(msg)
-              .contains("spring.solr.standalone.default-collection"));
+              .contains("spring.data.solr.standalone.default-collection"));
     }
 
     @Test
@@ -118,7 +118,7 @@ class SolrPropertiesValidatorTest {
 
       assertThat(warningMessages())
           .anySatisfy(msg -> assertThat(msg)
-              .contains("spring.solr.standalone.default-collection"));
+              .contains("spring.data.solr.standalone.default-collection"));
     }
 
     @Test
@@ -131,7 +131,7 @@ class SolrPropertiesValidatorTest {
 
       assertThat(warningMessages())
           .anySatisfy(msg -> assertThat(msg)
-              .contains("spring.solr.cloud.default-collection"));
+              .contains("spring.data.solr.cloud.default-collection"));
     }
   }
 

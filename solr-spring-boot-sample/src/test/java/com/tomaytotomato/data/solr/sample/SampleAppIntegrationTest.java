@@ -41,9 +41,9 @@ class SampleAppIntegrationTest {
   static void solrProperties(DynamicPropertyRegistry registry) {
     var solrBaseUrl = "http://" + solr.getHost() + ":" + solr.getSolrPort() + "/solr";
     defineLocationField(solrBaseUrl);
-    registry.add("spring.solr.host", () -> solrBaseUrl);
-    registry.add("spring.solr.default-collection", () -> COLLECTION);
-    registry.add("spring.solr.commit-mode", () -> "IMMEDIATE");
+    registry.add("spring.data.solr.standalone.host", () -> solrBaseUrl);
+    registry.add("spring.data.solr.standalone.default-collection", () -> COLLECTION);
+    registry.add("spring.data.solr.commit-mode", () -> "IMMEDIATE");
   }
 
   // Schemaless mode auto-types "lat,lon" as multiValued strings; SolrJ then returns

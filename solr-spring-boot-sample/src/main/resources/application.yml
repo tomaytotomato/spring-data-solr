@@ -4,11 +4,12 @@ spring:
   docker:
     compose:
       enabled: false
-  solr:
-    standalone:
-      host: ${SPRING_SOLR_STANDALONE_HOST:${SOLR_URL:http://localhost:8983/solr}}
-      default-collection: books
-    commit-mode: immediate
+  data:
+    solr:
+      standalone:
+        host: ${SPRING_DATA_SOLR_STANDALONE_HOST:${SOLR_URL:http://localhost:8983/solr}}
+        default-collection: books
+      commit-mode: immediate
 
 springdoc:
   swagger-ui:

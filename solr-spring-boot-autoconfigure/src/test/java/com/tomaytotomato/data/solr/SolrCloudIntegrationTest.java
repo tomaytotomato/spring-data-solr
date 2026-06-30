@@ -18,7 +18,7 @@ import org.testcontainers.utility.DockerImageName;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests for the {@code spring.solr.cloud} auto-configuration path,
+ * Integration tests for the {@code spring.data.solr.cloud} auto-configuration path,
  * exercising a real SolrCloud cluster running inside a Testcontainers container.
  *
  * <p>The Solr Docker image supports an embedded ZooKeeper via the {@code -DzkRun} flag.
@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * <h2>Coverage vs. issue #22</h2>
  * <ul>
- *   <li>COVERED: {@link CloudSolrClient} bean is wired from {@code spring.solr.cloud.*}</li>
+ *   <li>COVERED: {@link CloudSolrClient} bean is wired from {@code spring.data.solr.cloud.*}</li>
  *   <li>COVERED: Collection routing — document indexed and queried via a cloud collection</li>
  *   <li>COVERED: Single-node ZooKeeper host in the connection string</li>
  *   <li>TODO #22: ZooKeeper chroot paths (e.g. {@code zk1:2181/solr}) — requires a custom
@@ -65,9 +65,9 @@ class SolrCloudIntegrationTest {
     return new ApplicationContextRunner()
         .withConfiguration(AutoConfigurations.of(SolrAutoConfiguration.class))
         .withPropertyValues(
-            "spring.solr.cloud.zk-host=" + zkHost,
-            "spring.solr.cloud.default-collection=" + COLLECTION,
-            "spring.solr.commit-mode=IMMEDIATE"
+            "spring.data.solr.cloud.zk-host=" + zkHost,
+            "spring.data.solr.cloud.default-collection=" + COLLECTION,
+            "spring.data.solr.commit-mode=IMMEDIATE"
         );
   }
 

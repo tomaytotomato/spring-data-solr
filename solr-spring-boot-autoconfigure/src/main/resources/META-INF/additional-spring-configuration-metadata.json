@@ -1,61 +1,135 @@
 {
   "groups": [
     {
-      "name": "spring.solr.standalone",
+      "name": "spring.data.solr.standalone",
       "type": "com.tomaytotomato.data.solr.SolrProperties$StandaloneProperties",
       "sourceType": "com.tomaytotomato.data.solr.SolrProperties"
     },
     {
-      "name": "spring.solr.cloud",
+      "name": "spring.data.solr.cloud",
       "type": "com.tomaytotomato.data.solr.SolrProperties$CloudProperties",
       "sourceType": "com.tomaytotomato.data.solr.SolrProperties"
     }
   ],
   "properties": [
     {
-      "name": "spring.solr.standalone.host",
+      "name": "spring.data.solr.standalone.host",
       "type": "java.lang.String",
       "description": "Solr server URL for standalone mode. Must end with /solr for Solr 10+.",
       "defaultValue": "http://localhost:8983/solr"
     },
     {
-      "name": "spring.solr.standalone.default-collection",
+      "name": "spring.data.solr.standalone.default-collection",
       "type": "java.lang.String",
       "description": "Default Solr collection name for standalone mode. Used for health checks and as the SolrClient default."
     },
     {
-      "name": "spring.solr.cloud.zk-host",
+      "name": "spring.data.solr.cloud.zk-host",
       "type": "java.lang.String",
       "description": "ZooKeeper connection string for SolrCloud mode (e.g. localhost:2181). When set, a CloudSolrClient is created."
     },
     {
-      "name": "spring.solr.cloud.default-collection",
+      "name": "spring.data.solr.cloud.default-collection",
       "type": "java.lang.String",
       "description": "Default Solr collection name for SolrCloud mode. Used for health checks and as the CloudSolrClient default."
     },
     {
-      "name": "spring.solr.connection-timeout",
+      "name": "spring.data.solr.connection-timeout",
       "type": "java.time.Duration",
       "description": "Connection timeout for the Solr client.",
       "defaultValue": "10s"
     },
     {
-      "name": "spring.solr.request-timeout",
+      "name": "spring.data.solr.request-timeout",
       "type": "java.time.Duration",
       "description": "Request timeout for the Solr client.",
       "defaultValue": "60s"
     },
     {
-      "name": "spring.solr.commit-mode",
+      "name": "spring.data.solr.commit-mode",
       "type": "com.tomaytotomato.data.solr.CommitMode",
       "description": "Controls whether SolrTemplate commits after each write operation. NONE relies on Solr's autoCommit; IMMEDIATE forces a hard commit after each write.",
       "defaultValue": "none"
     },
     {
-      "name": "spring.solr.default-page-size",
+      "name": "spring.data.solr.default-page-size",
       "type": "java.lang.Integer",
       "description": "Default page size applied when a repository method returns Page, HighlightPage, or FacetPage but no Pageable argument is supplied. A WARN is logged whenever the default is used. Defaults to 10 for backwards compatibility.",
       "defaultValue": 10
+    },
+
+    {
+      "name": "spring.solr.standalone.host",
+      "type": "java.lang.String",
+      "description": "Deprecated — use spring.data.solr.standalone.host. The old prefix no longer binds.",
+      "deprecation": {
+        "level": "error",
+        "replacement": "spring.data.solr.standalone.host",
+        "reason": "Renamed to align with the Spring Data convention (spring.data.<store>.*)."
+      }
+    },
+    {
+      "name": "spring.solr.standalone.default-collection",
+      "type": "java.lang.String",
+      "deprecation": {
+        "level": "error",
+        "replacement": "spring.data.solr.standalone.default-collection",
+        "reason": "Renamed to align with the Spring Data convention (spring.data.<store>.*)."
+      }
+    },
+    {
+      "name": "spring.solr.cloud.zk-host",
+      "type": "java.lang.String",
+      "deprecation": {
+        "level": "error",
+        "replacement": "spring.data.solr.cloud.zk-host",
+        "reason": "Renamed to align with the Spring Data convention (spring.data.<store>.*)."
+      }
+    },
+    {
+      "name": "spring.solr.cloud.default-collection",
+      "type": "java.lang.String",
+      "deprecation": {
+        "level": "error",
+        "replacement": "spring.data.solr.cloud.default-collection",
+        "reason": "Renamed to align with the Spring Data convention (spring.data.<store>.*)."
+      }
+    },
+    {
+      "name": "spring.solr.connection-timeout",
+      "type": "java.time.Duration",
+      "deprecation": {
+        "level": "error",
+        "replacement": "spring.data.solr.connection-timeout",
+        "reason": "Renamed to align with the Spring Data convention (spring.data.<store>.*)."
+      }
+    },
+    {
+      "name": "spring.solr.request-timeout",
+      "type": "java.time.Duration",
+      "deprecation": {
+        "level": "error",
+        "replacement": "spring.data.solr.request-timeout",
+        "reason": "Renamed to align with the Spring Data convention (spring.data.<store>.*)."
+      }
+    },
+    {
+      "name": "spring.solr.commit-mode",
+      "type": "com.tomaytotomato.data.solr.CommitMode",
+      "deprecation": {
+        "level": "error",
+        "replacement": "spring.data.solr.commit-mode",
+        "reason": "Renamed to align with the Spring Data convention (spring.data.<store>.*)."
+      }
+    },
+    {
+      "name": "spring.solr.default-page-size",
+      "type": "java.lang.Integer",
+      "deprecation": {
+        "level": "error",
+        "replacement": "spring.data.solr.default-page-size",
+        "reason": "Renamed to align with the Spring Data convention (spring.data.<store>.*)."
+      }
     }
   ]
 }

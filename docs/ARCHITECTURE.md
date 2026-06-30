@@ -24,7 +24,7 @@ flowchart TD
   end
 
   subgraph Starter["solr-spring-boot-starter"]
-    SP["SolrProperties<br/>(spring.solr.*)"]
+    SP["SolrProperties<br/>(spring.data.solr.*)"]
     SAC["SolrAutoConfiguration"]
     SHAC["SolrHealthAutoConfiguration<br/>@AutoConfigureAfter(SolrAutoConfiguration)"]
     SRAC["SolrRepositoryAutoConfiguration<br/>@AutoConfigureAfter(SolrAutoConfiguration)"]
@@ -186,13 +186,13 @@ Where the user's `application.yml` lands and which beans it shapes.
 
 ```mermaid
 flowchart TD
-  YML["application.yml<br/>spring.solr.*"]
+  YML["application.yml<br/>spring.data.solr.*"]
   SP["SolrProperties<br/>@ConfigurationProperties"]
 
   subgraph Decision["Client Selection (SolrAutoConfiguration)"]
     Q{"Both standalone<br/>and cloud set?"}
     Err["IllegalStateException<br/>(startup failure)"]
-    QC{"spring.solr.cloud<br/>.zk-host set?"}
+    QC{"spring.data.solr.cloud<br/>.zk-host set?"}
     Cloud["CloudSolrClient<br/>(ZooKeeper-aware)"]
     Std["HttpJdkSolrClient<br/>(standalone, JDK HttpClient)"]
   end

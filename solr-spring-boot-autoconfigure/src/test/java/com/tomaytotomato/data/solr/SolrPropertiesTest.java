@@ -58,7 +58,7 @@ class SolrPropertiesTest {
     @Test
     void customHostBindsFromProperty() {
       contextRunner
-          .withPropertyValues("spring.solr.standalone.host=http://solr.example.com:8983/solr")
+          .withPropertyValues("spring.data.solr.standalone.host=http://solr.example.com:8983/solr")
           .run(ctx -> {
             var standalone = ctx.getBean(SolrProperties.class).getStandalone();
             assertThat(standalone).isNotNull();
@@ -69,7 +69,7 @@ class SolrPropertiesTest {
     @Test
     void defaultCollectionBindsFromProperty() {
       contextRunner
-          .withPropertyValues("spring.solr.standalone.default-collection=my-collection")
+          .withPropertyValues("spring.data.solr.standalone.default-collection=my-collection")
           .run(ctx -> {
             var standalone = ctx.getBean(SolrProperties.class).getStandalone();
             assertThat(standalone).isNotNull();
@@ -80,7 +80,7 @@ class SolrPropertiesTest {
     @Test
     void hostDefaultsWhenOnlyCollectionIsSet() {
       contextRunner
-          .withPropertyValues("spring.solr.standalone.default-collection=books")
+          .withPropertyValues("spring.data.solr.standalone.default-collection=books")
           .run(ctx -> {
             var standalone = ctx.getBean(SolrProperties.class).getStandalone();
             assertThat(standalone).isNotNull();
@@ -91,7 +91,7 @@ class SolrPropertiesTest {
     @Test
     void defaultCollectionIsExposedByTopLevelGetter() {
       contextRunner
-          .withPropertyValues("spring.solr.standalone.default-collection=products")
+          .withPropertyValues("spring.data.solr.standalone.default-collection=products")
           .run(ctx ->
               assertThat(ctx.getBean(SolrProperties.class).getDefaultCollection())
                   .isEqualTo("products"));
@@ -106,7 +106,7 @@ class SolrPropertiesTest {
     @Test
     void zkHostBindsFromProperty() {
       cloudContextRunner
-          .withPropertyValues("spring.solr.cloud.zk-host=localhost:2181")
+          .withPropertyValues("spring.data.solr.cloud.zk-host=localhost:2181")
           .run(ctx -> {
             var cloud = ctx.getBean(SolrProperties.class).getCloud();
             assertThat(cloud).isNotNull();
@@ -118,8 +118,8 @@ class SolrPropertiesTest {
     void cloudDefaultCollectionBindsFromProperty() {
       cloudContextRunner
           .withPropertyValues(
-              "spring.solr.cloud.zk-host=localhost:2181",
-              "spring.solr.cloud.default-collection=catalog")
+              "spring.data.solr.cloud.zk-host=localhost:2181",
+              "spring.data.solr.cloud.default-collection=catalog")
           .run(ctx -> {
             var cloud = ctx.getBean(SolrProperties.class).getCloud();
             assertThat(cloud).isNotNull();
@@ -131,8 +131,8 @@ class SolrPropertiesTest {
     void cloudDefaultCollectionIsExposedByTopLevelGetter() {
       cloudContextRunner
           .withPropertyValues(
-              "spring.solr.cloud.zk-host=localhost:2181",
-              "spring.solr.cloud.default-collection=catalog")
+              "spring.data.solr.cloud.zk-host=localhost:2181",
+              "spring.data.solr.cloud.default-collection=catalog")
           .run(ctx ->
               assertThat(ctx.getBean(SolrProperties.class).getDefaultCollection())
                   .isEqualTo("catalog"));
@@ -153,7 +153,7 @@ class SolrPropertiesTest {
     @Test
     void connectionTimeoutBindsFromProperty() {
       contextRunner
-          .withPropertyValues("spring.solr.connection-timeout=5s")
+          .withPropertyValues("spring.data.solr.connection-timeout=5s")
           .run(ctx ->
               assertThat(ctx.getBean(SolrProperties.class).getConnectionTimeout())
                   .isEqualTo(Duration.ofSeconds(5)));
@@ -162,7 +162,7 @@ class SolrPropertiesTest {
     @Test
     void requestTimeoutBindsFromProperty() {
       contextRunner
-          .withPropertyValues("spring.solr.request-timeout=30s")
+          .withPropertyValues("spring.data.solr.request-timeout=30s")
           .run(ctx ->
               assertThat(ctx.getBean(SolrProperties.class).getRequestTimeout())
                   .isEqualTo(Duration.ofSeconds(30)));
@@ -181,7 +181,7 @@ class SolrPropertiesTest {
     @Test
     void customDefaultPageSizeBindsFromProperty() {
       contextRunner
-          .withPropertyValues("spring.solr.default-page-size=50")
+          .withPropertyValues("spring.data.solr.default-page-size=50")
           .run(ctx ->
               assertThat(ctx.getBean(SolrProperties.class).getDefaultPageSize()).isEqualTo(50));
     }

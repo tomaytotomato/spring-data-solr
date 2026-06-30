@@ -46,9 +46,9 @@ abstract class AbstractSolrIntegrationTest {
     contextRunner = new ApplicationContextRunner()
         .withConfiguration(AutoConfigurations.of(SolrAutoConfiguration.class))
         .withPropertyValues(
-            "spring.solr.standalone.host=http://" + solr.getHost() + ":" + solr.getSolrPort() + "/solr",
-            "spring.solr.standalone.default-collection=" + COLLECTION,
-            "spring.solr.commit-mode=IMMEDIATE"
+            "spring.data.solr.standalone.host=http://" + solr.getHost() + ":" + solr.getSolrPort() + "/solr",
+            "spring.data.solr.standalone.default-collection=" + COLLECTION,
+            "spring.data.solr.commit-mode=IMMEDIATE"
         );
 
     contextRunner.run(ctx -> {
