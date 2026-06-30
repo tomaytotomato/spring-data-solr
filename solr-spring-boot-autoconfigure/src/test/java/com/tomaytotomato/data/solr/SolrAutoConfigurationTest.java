@@ -25,7 +25,8 @@ import static org.mockito.Mockito.mock;
 class SolrAutoConfigurationTest {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-      .withConfiguration(AutoConfigurations.of(SolrAutoConfiguration.class));
+      .withConfiguration(AutoConfigurations.of(SolrAutoConfiguration.class))
+      .withPropertyValues("spring.solr.standalone.host=http://localhost:8983/solr");
 
   @Configuration
   static class TestRepositoryConfiguration {
@@ -207,7 +208,46 @@ class SolrAutoConfigurationTest {
   class ClientModeSelection {
 
     @Test
-    void usesStandaloneClientByDefault() {
+    void failsFastWhenNoSolrConfigIsPresent() {
+      new ApplicationContextRunner()
+          .withConfiguration(AutoConfigurations.of(SolrAutoConfiguration.class))
+          .run(ctx -> {
+            assertThat(ctx).hasFailed();
+            assertThat(ctx.getStartupFailure())
+                .rootCause()
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("No Solr configuration found");
+          });
+    }
+
+    @Test
+    void failsFastWhenStandaloneHostIsMalformed() {
+      new ApplicationContextRunner()
+          .withConfiguration(AutoConfigurations.of(SolrAutoConfiguration.class))
+          .withPropertyValues("spring.solr.standalone.host=not-a-url")
+          .run(ctx -> {
+            assertThat(ctx).hasFailed();
+            assertThat(ctx.getStartupFailure())
+                .hasStackTraceContaining("spring.solr.standalone.host");
+          });
+    }
+
+    @Test
+    void failsFastWhenCloudZkHostIsBlank() {
+      new ApplicationContextRunner()
+          .withConfiguration(AutoConfigurations.of(SolrAutoConfiguration.class))
+          .withPropertyValues(
+              "spring.solr.cloud.zk-host=",
+              "spring.solr.cloud.default-collection=books")
+          .run(ctx -> {
+            assertThat(ctx).hasFailed();
+            assertThat(ctx.getStartupFailure())
+                .hasStackTraceContaining("spring.solr.cloud.zk-host");
+          });
+    }
+
+    @Test
+    void usesStandaloneClientWhenStandaloneIsConfigured() {
       contextRunner.run(ctx -> {
         assertThat(ctx).hasSingleBean(SolrClient.class);
         assertThat(ctx.getBean(SolrClient.class)).isNotInstanceOf(CloudSolrClient.class);
@@ -216,7 +256,8 @@ class SolrAutoConfigurationTest {
 
     @Test
     void createsCloudClientWhenCloudZkHostIsSet() {
-      contextRunner
+      new ApplicationContextRunner()
+          .withConfiguration(AutoConfigurations.of(SolrAutoConfiguration.class))
           .withPropertyValues("spring.solr.cloud.zk-host=localhost:2181")
           .run(ctx -> {
             assertThat(ctx).hasNotFailed();
@@ -237,7 +278,7 @@ class SolrAutoConfigurationTest {
     }
 
     @Test
-    void failsWithIllegalStateWhenBothStandaloneAndCloudAreConfigured() {
+    void failsFastWhenBothStandaloneAndCloudAreConfigured() {
       contextRunner
           .withPropertyValues(
               "spring.solr.standalone.host=http://localhost:8983/solr",
@@ -245,6 +286,9 @@ class SolrAutoConfigurationTest {
           .run(ctx -> {
             assertThat(ctx).hasFailed();
             assertThat(ctx.getStartupFailure())
+                .rootCause()
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Ambiguous Solr configuration")
                 .hasMessageContaining("spring.solr.standalone")
                 .hasMessageContaining("spring.solr.cloud");
           });
