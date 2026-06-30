@@ -60,7 +60,7 @@ import org.springframework.data.repository.query.RepositoryQuery;
  * <p>When the method returns a paged type ({@link HighlightPage} or {@link FacetPage}) and no
  * {@link Pageable} argument is found in the parameter list, a default page of
  * {@code PageRequest.of(0, defaultPageSize)} is applied and a {@code WARN} is logged. Configure
- * {@code spring.solr.default-page-size} to override the default size (default is {@code 10}).
+ * {@code spring.data.solr.default-page-size} to override the default size (default is {@code 10}).
  */
 public class StringBasedSolrQuery implements RepositoryQuery {
 
@@ -214,7 +214,7 @@ public class StringBasedSolrQuery implements RepositoryQuery {
     log.warn(
         "Repository method {}.{}() returns a paged result but was called without a Pageable "
             + "argument. Defaulting to page 0, size {}. Pass an explicit Pageable to control "
-            + "pagination and suppress this warning, or configure spring.solr.default-page-size.",
+            + "pagination and suppress this warning, or configure spring.data.solr.default-page-size.",
         method.getDeclaringClass().getSimpleName(), method.getName(), defaultPageSize);
     simpleQuery.setPageable(PageRequest.of(0, defaultPageSize));
     return simpleQuery;

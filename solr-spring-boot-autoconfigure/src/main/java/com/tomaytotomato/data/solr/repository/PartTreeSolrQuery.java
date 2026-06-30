@@ -20,7 +20,7 @@ import org.springframework.data.repository.query.parser.PartTree;
  * <p>When a method returns a paged type ({@code Page}, {@link HighlightPage}, or
  * {@link FacetPage}) and the caller does not supply a {@link org.springframework.data.domain.Pageable}
  * argument, a default page of {@code PageRequest.of(0, defaultPageSize)} is applied and a
- * {@code WARN} is logged. Configure {@code spring.solr.default-page-size} to override the
+ * {@code WARN} is logged. Configure {@code spring.data.solr.default-page-size} to override the
  * default size (default is {@code 10}).
  */
 public class PartTreeSolrQuery implements RepositoryQuery {
@@ -148,14 +148,14 @@ public class PartTreeSolrQuery implements RepositoryQuery {
   /**
    * Returns a default {@link PageRequest} and logs a warning. Called when a page-returning
    * repository method is invoked without a {@link org.springframework.data.domain.Pageable}
-   * argument. Set {@code spring.solr.default-page-size} to control the page size, or pass an
+   * argument. Set {@code spring.data.solr.default-page-size} to control the page size, or pass an
    * explicit {@code Pageable} to suppress this warning entirely.
    */
   private PageRequest applyDefaultPageable(Method m) {
     log.warn(
         "Repository method {}.{}() returns a paged result but was called without a Pageable "
             + "argument. Defaulting to page 0, size {}. Pass an explicit Pageable to control "
-            + "pagination and suppress this warning, or configure spring.solr.default-page-size.",
+            + "pagination and suppress this warning, or configure spring.data.solr.default-page-size.",
         m.getDeclaringClass().getSimpleName(), m.getName(), defaultPageSize);
     return PageRequest.of(0, defaultPageSize);
   }

@@ -46,7 +46,7 @@ linked into your existing trace context.
 
 ### Disabling it
 
-There is no `spring.solr.observability.enabled=false` flag — observability follows the
+There is no `spring.data.solr.observability.enabled=false` flag — observability follows the
 standard Spring Boot conditional model. Pick whichever of these fits:
 
 **Don't include an `ObservationRegistry`.** The instrumentation only activates when a
@@ -120,10 +120,10 @@ Configure your collector via `management.otlp.tracing.endpoint` and every `SolrT
 call becomes a span — with the same `operation` and `collection` tags as attributes —
 nested under whatever request span is active.
 
-### Why it's not configurable via `spring.solr.*`
+### Why it's not configurable via `spring.data.solr.*`
 
 The original draft of this feature exposed a property like
-`spring.solr.observability.enabled`. We dropped it because every other observability-aware
+`spring.data.solr.observability.enabled`. We dropped it because every other observability-aware
 Boot starter follows the same convention: instrumentation is on when an
 `ObservationRegistry` is present, off when it isn't. Adding a project-specific flag would
 just be a less standard way of doing the same thing.

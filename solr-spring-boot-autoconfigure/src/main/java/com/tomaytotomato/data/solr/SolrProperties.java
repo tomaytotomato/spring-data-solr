@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
-@ConfigurationProperties(prefix = "spring.solr")
+@ConfigurationProperties(prefix = "spring.data.solr")
 public class SolrProperties {
 
   @Valid
@@ -29,7 +29,7 @@ public class SolrProperties {
    * result truncation is visible in logs. To suppress the warning, always pass an
    * explicit {@code Pageable} to page-returning repository methods.
    * <p>
-   * Configure via {@code spring.solr.default-page-size} in {@code application.yml}.
+   * Configure via {@code spring.data.solr.default-page-size} in {@code application.yml}.
    * Defaults to {@code 10} for backwards compatibility.
    */
   private final int defaultPageSize;
@@ -85,15 +85,15 @@ public class SolrProperties {
 
   public record StandaloneProperties(
       @DefaultValue("http://localhost:8983/solr")
-      @NotBlank(message = "spring.solr.standalone.host must not be blank")
+      @NotBlank(message = "spring.data.solr.standalone.host must not be blank")
       @Pattern(
           regexp = "^https?://[^\\s]+/solr/?$",
-          message = "spring.solr.standalone.host must start with http(s):// and end with /solr (was: ${validatedValue})")
+          message = "spring.data.solr.standalone.host must start with http(s):// and end with /solr (was: ${validatedValue})")
       String host,
       String defaultCollection) {}
 
   public record CloudProperties(
-      @NotBlank(message = "spring.solr.cloud.zk-host must not be blank when spring.solr.cloud is configured")
+      @NotBlank(message = "spring.data.solr.cloud.zk-host must not be blank when spring.data.solr.cloud is configured")
       String zkHost,
       String defaultCollection) {}
 }

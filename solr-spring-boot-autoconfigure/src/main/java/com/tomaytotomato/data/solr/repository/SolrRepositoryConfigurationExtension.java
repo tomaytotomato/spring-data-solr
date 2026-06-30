@@ -41,7 +41,7 @@ public class SolrRepositoryConfigurationExtension extends RepositoryConfiguratio
    * Spring Boot constructs this as {@code prefix-fully.qualified.ClassName}.
    */
   private static final String SOLR_PROPERTIES_BEAN_NAME =
-      "spring.solr-com.tomaytotomato.data.solr.SolrProperties";
+      "spring.data.solr-com.tomaytotomato.data.solr.SolrProperties";
 
   /** Bean name for the {@link com.tomaytotomato.data.solr.mapping.SolrDocumentResolver}. */
   private static final String SOLR_DOCUMENT_RESOLVER_BEAN_NAME = "solrDocumentResolver";

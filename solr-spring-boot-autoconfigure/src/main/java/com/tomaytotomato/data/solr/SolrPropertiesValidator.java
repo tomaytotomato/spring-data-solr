@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * handles the rules that span fields:
  *
  * <ul>
- *   <li>At least one of {@code spring.solr.standalone} or {@code spring.solr.cloud}
+ *   <li>At least one of {@code spring.data.solr.standalone} or {@code spring.data.solr.cloud}
  *       must be configured — there is no implicit localhost fallback.</li>
  *   <li>It is an error to configure both simultaneously; the operator must pick a
  *       mode explicitly.</li>
@@ -40,22 +40,22 @@ final class SolrPropertiesValidator {
 
     if (hasStandalone && hasCloud) {
       throw new IllegalStateException(
-          "Ambiguous Solr configuration: both 'spring.solr.standalone' and 'spring.solr.cloud' "
+          "Ambiguous Solr configuration: both 'spring.data.solr.standalone' and 'spring.data.solr.cloud' "
               + "are set. Remove one — these modes are mutually exclusive.");
     }
 
     if (!hasStandalone && !hasCloud) {
       throw new IllegalStateException(
-          "No Solr configuration found. Configure either 'spring.solr.standalone.host' for "
-              + "standalone mode or 'spring.solr.cloud.zk-host' for SolrCloud mode.");
+          "No Solr configuration found. Configure either 'spring.data.solr.standalone.host' for "
+              + "standalone mode or 'spring.data.solr.cloud.zk-host' for SolrCloud mode.");
     }
 
     if (hasStandalone && isBlank(properties.getStandalone().defaultCollection())) {
-      log.warn("No 'spring.solr.standalone.default-collection' set. Repository operations "
+      log.warn("No 'spring.data.solr.standalone.default-collection' set. Repository operations "
           + "and the health indicator will require a collection name to be supplied per-call.");
     }
     if (hasCloud && isBlank(properties.getCloud().defaultCollection())) {
-      log.warn("No 'spring.solr.cloud.default-collection' set. Repository operations and the "
+      log.warn("No 'spring.data.solr.cloud.default-collection' set. Repository operations and the "
           + "health indicator will require a collection name to be supplied per-call.");
     }
   }
