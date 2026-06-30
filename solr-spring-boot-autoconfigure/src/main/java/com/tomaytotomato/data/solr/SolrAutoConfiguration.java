@@ -44,10 +44,7 @@ public class SolrAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean(SolrClient.class)
   SolrClient solrClient(SolrProperties properties) {
-    if (properties.getCloud() != null && properties.getStandalone() != null) {
-      throw new IllegalStateException(
-          "Ambiguous Solr configuration: both 'spring.solr.standalone' and 'spring.solr.cloud' are set. Remove one.");
-    }
+    SolrPropertiesValidator.validate(properties);
     if (properties.getCloud() != null) {
       return buildCloudClient(properties);
     }
@@ -85,12 +82,10 @@ public class SolrAutoConfiguration {
 
   private SolrClient buildStandaloneClient(SolrProperties properties) {
     var standalone = properties.getStandalone();
-    var host = standalone != null ? standalone.host() : "http://localhost:8983/solr";
-    var collection = standalone != null ? standalone.defaultCollection() : null;
-    return new HttpJdkSolrClient.Builder(host)
+    return new HttpJdkSolrClient.Builder(standalone.host())
         .withConnectionTimeout(properties.getConnectionTimeout().toMillis(), TimeUnit.MILLISECONDS)
         .withRequestTimeout(properties.getRequestTimeout().toMillis(), TimeUnit.MILLISECONDS)
-        .withDefaultCollection(collection)
+        .withDefaultCollection(standalone.defaultCollection())
         .build();
   }
 

@@ -1,13 +1,20 @@
 package com.tomaytotomato.data.solr;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
+import org.springframework.validation.annotation.Validated;
 
+@Validated
 @ConfigurationProperties(prefix = "spring.solr")
 public class SolrProperties {
 
+  @Valid
   private final StandaloneProperties standalone;
+  @Valid
   private final CloudProperties cloud;
   private final Duration connectionTimeout;
   private final Duration requestTimeout;
@@ -77,10 +84,16 @@ public class SolrProperties {
   }
 
   public record StandaloneProperties(
-      @DefaultValue("http://localhost:8983/solr") String host,
+      @DefaultValue("http://localhost:8983/solr")
+      @NotBlank(message = "spring.solr.standalone.host must not be blank")
+      @Pattern(
+          regexp = "^https?://[^\\s]+/solr/?$",
+          message = "spring.solr.standalone.host must start with http(s):// and end with /solr (was: ${validatedValue})")
+      String host,
       String defaultCollection) {}
 
   public record CloudProperties(
+      @NotBlank(message = "spring.solr.cloud.zk-host must not be blank when spring.solr.cloud is configured")
       String zkHost,
       String defaultCollection) {}
 }

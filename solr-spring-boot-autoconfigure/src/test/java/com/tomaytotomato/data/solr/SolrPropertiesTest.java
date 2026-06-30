@@ -13,7 +13,8 @@ import static org.mockito.Mockito.mock;
 class SolrPropertiesTest {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-      .withConfiguration(AutoConfigurations.of(SolrAutoConfiguration.class));
+      .withConfiguration(AutoConfigurations.of(SolrAutoConfiguration.class))
+      .withBean("solrClient", SolrClient.class, () -> mock(SolrClient.class));
 
   @Nested
   class Defaults {
@@ -100,8 +101,7 @@ class SolrPropertiesTest {
   @Nested
   class CloudBinding {
 
-    private final ApplicationContextRunner cloudContextRunner = contextRunner
-        .withBean("solrClient", SolrClient.class, () -> mock(SolrClient.class));
+    private final ApplicationContextRunner cloudContextRunner = contextRunner;
 
     @Test
     void zkHostBindsFromProperty() {
