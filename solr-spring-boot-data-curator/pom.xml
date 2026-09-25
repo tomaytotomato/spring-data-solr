@@ -15,7 +15,7 @@
   <description>Java CLI tool to curate, enrich, and transform book datasets for the Solr sample application</description>
 
   <properties>
-    <jackson-csv.version>2.22.0</jackson-csv.version>
+    <jackson-csv.version>2.22.2</jackson-csv.version>
     <maven.deploy.skip>true</maven.deploy.skip>
   </properties>
 
